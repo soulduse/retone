@@ -1,0 +1,16 @@
+{
+  "name": "retone-helper",
+  "version": "0.1.0",
+  "description": "Retone 로컬 헬퍼 — 구독 CLI/API를 감싸는 리라이팅 서버",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "bin": {
+    "retone": "src/index.js"
+  },
+  "scripts": {
+    "start": "node src/index.js serve",
+    "test": "node --test"
+  }
+}

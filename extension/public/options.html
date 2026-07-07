@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <title>Retone 설정</title>
+  <link rel="stylesheet" href="options.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="wordmark">Re<span class="spark">✦</span>tone</div>
+    <div id="connPill" class="pill pill-off"><span class="dot"></span><span id="connPillText">헬퍼 미연결</span></div>
+  </header>
+
+  <main>
+    <section class="card">
+      <div class="card-title"><span class="tick"></span>헬퍼 연결</div>
+      <div class="explainer">
+        <div class="explainer-icon">🔒</div>
+        <div>
+          Retone은 글을 외부 서버가 아닌 <strong>내 컴퓨터에서</strong> 다듬어요.
+          이 컴퓨터에 설치된 Claude/ChatGPT 구독(또는 API 키)으로 AI를 호출하는 작은 프로그램이
+          <strong>헬퍼</strong>이고, 확장은 헬퍼와 연결되어야 동작합니다.
+          작성 중인 글은 내 컴퓨터와 선택한 AI 사이에서만 오갑니다.
+        </div>
+      </div>
+      <div id="connBox"></div>
+      <details class="advanced">
+        <summary>고급 설정</summary>
+        <div>
+          <label class="field">
+            <span class="field-label">retone 폴더 경로 (실행 안내 명령에 사용)</span>
+            <input type="text" id="installPath" placeholder="예: /Users/me/retone" spellcheck="false" />
+          </label>
+          <div class="field-row">
+            <label class="field">
+              <span class="field-label">서버 주소</span>
+              <input type="text" id="helperBaseUrl" placeholder="http://127.0.0.1:7386" spellcheck="false" />
+            </label>
+            <label class="field grow">
+              <span class="field-label">토큰 (자동 연결 실패 시에만 수동 입력)</span>
+              <input type="password" id="helperToken" placeholder="터미널: retone token 출력값" spellcheck="false" />
+            </label>
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <section class="card">
+      <div class="card-title"><span class="tick"></span>Provider · 모델</div>
+      <div id="providerBadges" class="badges"></div>
+      <div class="field-row">
+        <label class="field grow">
+          <span class="field-label">Provider</span>
+          <select id="provider"></select>
+        </label>
+        <label class="field grow">
+          <span class="field-label">모델</span>
+          <select id="model"></select>
+        </label>
+      </div>
+      <p class="hint" id="providerHint"></p>
+    </section>
+
+    <section class="card">
+      <div class="card-title"><span class="tick"></span>API 키
+        <span class="title-sub">API provider 전용 · 헬퍼에만 저장되고 브라우저에는 남지 않습니다</span>
+      </div>
+      <label class="field"><span class="field-label">Anthropic</span>
+        <input type="password" id="key-anthropic" placeholder="입력 후 저장 — 비우고 저장하면 삭제" spellcheck="false" /></label>
+      <label class="field"><span class="field-label">OpenAI</span>
+        <input type="password" id="key-openai" spellcheck="false" /></label>
+      <label class="field"><span class="field-label">Gemini</span>
+        <input type="password" id="key-gemini" spellcheck="false" /></label>
+      <div class="actions">
+        <button id="saveKeys" class="btn">키 저장</button>
+        <span id="keysStatus" class="inline-status"></span>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-title"><span class="tick"></span>선택 시 동작</div>
+      <div class="segmented" id="insertModeSeg">
+        <button data-value="insert">입력창에 바로 삽입<small>실패하면 클립보드 복사</small></button>
+        <button data-value="copy">항상 클립보드 복사<small>직접 삽입 안 함</small></button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-title"><span class="tick"></span>톤 프리셋
+        <span class="title-sub">스위치를 끄면 패널에서 숨겨집니다</span>
+      </div>
+      <div id="builtinPresets" class="preset-list"></div>
+      <div class="subhead">커스텀 프리셋</div>
+      <div id="customPresets" class="preset-list"></div>
+      <button id="addCustomPreset" class="btn btn-ghost">＋ 커스텀 프리셋 추가</button>
+    </section>
+  </main>
+
+  <div id="saveToast">저장됨</div>
+  <script src="options.js"></script>
+</body>
+</html>

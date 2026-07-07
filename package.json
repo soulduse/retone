@@ -1,0 +1,21 @@
+{
+  "name": "retone",
+  "private": true,
+  "version": "0.1.0",
+  "description": "X/Threads 글 리라이팅 — Chrome 확장 + 로컬 LLM 헬퍼 (구독 CLI/BYOK)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/soulduse/retone.git"
+  },
+  "workspaces": [
+    "extension",
+    "helper"
+  ],
+  "scripts": {
+    "build": "npm run build -w extension",
+    "dev": "npm run dev -w extension",
+    "start": "npm start -w helper",
+    "test": "npm test -w helper"
+  }
+}
