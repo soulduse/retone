@@ -43,7 +43,7 @@ curl -H "x-retone-token: $TOKEN" http://127.0.0.1:7386/v1/models
 
 ```json
 {"providers":[{"id":"claude-cli","label":"Claude CLI (구독)","kind":"cli",
-  "models":[{"id":"sonnet","label":"Sonnet"},...],"defaultModel":"sonnet",
+  "models":[{"id":"claude-sonnet-5","label":"Sonnet 5"},...],"defaultModel":"claude-sonnet-5",
   "available":true,"version":"2.1.202 (Claude Code)"}, ...]}
 ```
 
@@ -56,13 +56,13 @@ curl -X POST -H "x-retone-token: $TOKEN" -H "content-type: application/json" \
   http://127.0.0.1:7386/v1/rewrite -d '{
   "text": "다듬을 초안",
   "provider": "claude-cli",
-  "model": "haiku",
+  "model": "claude-haiku-4-5",
   "context": {"site": "x", "kind": "post"},
   "presets": [
     {"id": "polish", "name": "심플 다듬기", "instruction": "자연스럽게 다듬어줘."}
   ]
 }'
-# → {"variants":[{"presetId":"polish","text":"..."}],"elapsedMs":8424,"provider":"claude-cli","model":"haiku"}
+# → {"variants":[{"presetId":"polish","text":"..."}],"elapsedMs":8424,"provider":"claude-cli","model":"claude-haiku-4-5"}
 ```
 
 - `model` 생략 시 provider의 defaultModel
@@ -85,8 +85,9 @@ curl -X PUT -H "x-retone-token: $TOKEN" -H "content-type: application/json" \
 
 ## Provider 구현 노트
 
-- **claude-cli**: `claude -p "<user>" --model <m> --fallback-model sonnet --output-format json --json-schema '<inline schema>' --append-system-prompt "<sys>"`. env에서 `ANTHROPIC_API_KEY` 제거(구독 모드 유지), cwd=`~/.config/retone/work/`. `--bare`는 keychain 인증을 건너뛸 수 있어 미사용.
+- **claude-cli**: `claude -p "<user>" --model <m> --fallback-model claude-sonnet-5 --output-format json --json-schema '<inline schema>' --append-system-prompt "<sys>"`. env에서 `ANTHROPIC_API_KEY` 제거(구독 모드 유지), cwd=`~/.config/retone/work/`. `--bare`는 keychain 인증을 건너뛸 수 있어 미사용.
 - **codex-cli**: `codex exec - --skip-git-repo-check -s read-only --ephemeral -m <m> -c model_reasoning_effort="low" --output-schema <file> -o <outfile>`, 프롬프트는 stdin. env에서 `OPENAI_API_KEY` 제거.
+- **antigravity-cli**: `~/.local/bin/agy -p "<sys+user+schema>" --model <m> --print-timeout <s>s`. Google AI Pro/Ultra 구독(키링 인증, 최초 1회 `agy` 실행으로 로그인). JSON 강제 플래그가 없어 프롬프트로 지시 후 관대한 추출로 파싱. PATH의 `agy`는 IDE 런처와 충돌하므로 고정 경로만 사용. 잘못된 모델명은 에러 없이 기본 모델로 폴백됨.
 - **anthropic**: Messages API + structured outputs(`output_config.format.json_schema`)
 - **openai**: chat/completions + `response_format json_schema strict` + `reasoning_effort: low`
 - **gemini**: `generateContent` + `responseSchema`(additionalProperties 제거 변환)

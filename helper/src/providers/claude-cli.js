@@ -18,7 +18,7 @@ export async function rewrite({ model, system, user, timeoutMs, signal }) {
   const args = [
     '-p', user,
     '--model', model,
-    '--fallback-model', 'sonnet',
+    '--fallback-model', 'claude-sonnet-5',
     '--output-format', 'json',
     '--json-schema', JSON.stringify(RETONE_SCHEMA),
     '--append-system-prompt', system,

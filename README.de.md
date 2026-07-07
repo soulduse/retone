@@ -6,15 +6,16 @@ Schreiben Sie Ihre X (Twitter)- / Threads-Entwürfe in mehreren Tonlagen um — 
 
 ![Retone demo](docs/assets/demo.png)
 
-**Nutzen Sie das Abo, das Sie bereits bezahlen.** Retone kapselt die offiziellen `claude`- / `codex`-CLIs als Headless-Subprozesse, sodass Ihr Claude-Pro/Max- oder ChatGPT-Plus/Pro-Abo das Umschreiben übernimmt — keine OAuth-Token-Extraktion, keine Drittanbieter-Server. Eigene API-Schlüssel (Anthropic / OpenAI / Gemini) werden ebenfalls unterstützt.
+**Nutzen Sie das Abo, das Sie bereits bezahlen.** Retone kapselt die offiziellen `claude`- / `codex`- / `agy`-CLIs (Antigravity) als Headless-Subprozesse, sodass Ihr Claude-Pro/Max-, ChatGPT-Plus/Pro- oder Google-AI-Pro/Ultra-Abo das Umschreiben übernimmt — keine OAuth-Token-Extraktion, keine Drittanbieter-Server. Eigene API-Schlüssel (Anthropic / OpenAI / Gemini) werden ebenfalls unterstützt.
 
 ```
 Chrome extension (content script on x.com / threads.com)
    │  localhost HTTP (127.0.0.1:7386, token auth)
    ▼
 Local helper (zero-dependency Node ESM)
-   ├─ claude-cli  : claude -p (Claude subscription)
-   ├─ codex-cli   : codex exec (ChatGPT subscription)
+   ├─ claude-cli      : claude -p (Claude subscription)
+   ├─ codex-cli       : codex exec (ChatGPT subscription)
+   ├─ antigravity-cli : agy -p (Google AI Pro/Ultra subscription)
    └─ anthropic / openai / gemini : your own API keys
 ```
 
@@ -48,7 +49,7 @@ Chrome → `chrome://extensions` → Entwicklermodus aktivieren → **Entpackte 
 Öffnen Sie die Optionsseite der Erweiterung — sie **verbindet und koppelt sich automatisch mit dem Helper** (kein Token-Kopieren; `POST /v1/pair`). Läuft der Helper nicht, wird eine Schritt-für-Schritt-Anleitung angezeigt.
 
 1. Verbindung prüfen (die Statusanzeige oben rechts wird grün)
-2. Anbieter / Modell wählen (Claude CLI: sonnet/haiku/opus, Codex: gpt-5.5, …)
+2. Anbieter / Modell wählen (Claude CLI: Sonnet 5/Haiku 4.5/Opus 4.8, Codex: GPT-5.5, Antigravity: Gemini 3.5 Flash, …)
 3. (Optional) API-Schlüssel eingeben, um API-Anbieter zu nutzen — die Schlüssel werden ausschließlich in der Helper-Konfiguration gespeichert (`~/.config/retone/config.json`, Modus 0600), niemals im Browser
 
 Sollte die automatische Kopplung einmal fehlschlagen, fügen Sie die Ausgabe von `retone token` manuell in den erweiterten Einstellungen ein.
@@ -90,6 +91,7 @@ HTTP-API-Referenz: [`docs/api.md`](docs/api.md)
 - **Nutzungsbedingungen**: Das Extrahieren von OAuth-Tokens und der direkte Aufruf der API sind seit 2026 verboten (und serverseitig blockiert). Retone führt ausschließlich die offiziellen CLI-Binärdateien als Subprozesse aus. Beim Starten von `claude` wird `ANTHROPIC_API_KEY` aus der Umgebung entfernt, damit das CLI im Abo-Modus bleibt (ist der Schlüssel vorhanden, wechselt die Nutzung stillschweigend zur API-Abrechnung).
 - DOM-Änderungen bei X/Threads können das direkte Einfügen brechen — in diesem Fall greift Retone automatisch auf das Kopieren in die Zwischenablage zurück. Die Site-Selektoren sind in `extension/src/content/sites/` isoliert.
 - Umschreibungen über CLI-Anbieter dauern typischerweise 5–15 Sekunden und können langsamer sein, wenn andere Sitzungen (z. B. Claude Code) auf derselben Maschine laufen. Wählen Sie einen API-Anbieter (z. B. Gemini Flash), wenn Sie schnelle Antworten benötigen.
+- **Google-Abo (Antigravity)**: Die Einzel-/AI-Pro-Stufen der Gemini CLI wurden im Juni 2026 eingestellt; Retone nutzt daher die Antigravity CLI (`agy`). Installieren Sie sie von https://antigravity.google und melden Sie sich einmalig an, indem Sie `~/.local/bin/agy` im Terminal ausführen.
 
 ## Datenschutz
 

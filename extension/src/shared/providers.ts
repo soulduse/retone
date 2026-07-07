@@ -11,11 +11,11 @@ export const FALLBACK_PROVIDERS: ProviderInfo[] = [
     kind: 'cli',
     available: true,
     models: [
-      { id: 'sonnet', label: 'Sonnet' },
-      { id: 'haiku', label: 'Haiku (빠름)' },
-      { id: 'opus', label: 'Opus' },
+      { id: 'claude-sonnet-5', label: 'Sonnet 5' },
+      { id: 'claude-haiku-4-5', label: 'Haiku 4.5 (빠름)' },
+      { id: 'claude-opus-4-8', label: 'Opus 4.8' },
     ],
-    defaultModel: 'sonnet',
+    defaultModel: 'claude-sonnet-5',
   },
   {
     id: 'codex-cli',
@@ -27,6 +27,21 @@ export const FALLBACK_PROVIDERS: ProviderInfo[] = [
       { id: 'gpt-5.4', label: 'GPT-5.4' },
     ],
     defaultModel: 'gpt-5.5',
+  },
+  {
+    id: 'antigravity-cli',
+    label: 'Antigravity CLI (Google 구독)',
+    kind: 'cli',
+    available: true,
+    models: [
+      { id: 'Gemini 3.5 Flash (Low)', label: 'Gemini 3.5 Flash Low (빠름)' },
+      { id: 'Gemini 3.5 Flash (Medium)', label: 'Gemini 3.5 Flash Medium' },
+      { id: 'Gemini 3.5 Flash (High)', label: 'Gemini 3.5 Flash High' },
+      { id: 'Gemini 3.1 Pro (Low)', label: 'Gemini 3.1 Pro Low' },
+      { id: 'Gemini 3.1 Pro (High)', label: 'Gemini 3.1 Pro High' },
+      { id: 'GPT-OSS 120B (Medium)', label: 'GPT-OSS 120B' },
+    ],
+    defaultModel: 'Gemini 3.5 Flash (Low)',
   },
   {
     id: 'anthropic',

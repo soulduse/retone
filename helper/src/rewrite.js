@@ -1,5 +1,6 @@
 import * as claudeCli from './providers/claude-cli.js';
 import * as codexCli from './providers/codex-cli.js';
+import * as antigravityCli from './providers/antigravity-cli.js';
 import * as apiAnthropic from './providers/api-anthropic.js';
 import * as apiOpenai from './providers/api-openai.js';
 import * as apiGemini from './providers/api-gemini.js';
@@ -11,6 +12,7 @@ import { errors } from './util/errors.js';
 const IMPLS = {
   'claude-cli': claudeCli,
   'codex-cli': codexCli,
+  'antigravity-cli': antigravityCli,
   anthropic: apiAnthropic,
   openai: apiOpenai,
   gemini: apiGemini,

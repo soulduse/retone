@@ -6,15 +6,16 @@
 
 ![Retone demo](docs/assets/demo.png)
 
-**直接利用你已经付费的订阅。** Retone 将官方的 `claude` / `codex` CLI 作为无头子进程封装调用，因此改写工作由你的 Claude Pro/Max 或 ChatGPT Plus/Pro 订阅完成 —— 不提取 OAuth 令牌，也没有任何第三方服务器。同时也支持自带 API 密钥（Anthropic / OpenAI / Gemini）。
+**直接利用你已经付费的订阅。** Retone 将官方的 `claude` / `codex` / `agy`（Antigravity）CLI 作为无头子进程封装调用，因此改写工作由你的 Claude Pro/Max、ChatGPT Plus/Pro 或 Google AI Pro/Ultra 订阅完成 —— 不提取 OAuth 令牌，也没有任何第三方服务器。同时也支持自带 API 密钥（Anthropic / OpenAI / Gemini）。
 
 ```
 Chrome extension (content script on x.com / threads.com)
    │  localhost HTTP (127.0.0.1:7386, token auth)
    ▼
 Local helper (zero-dependency Node ESM)
-   ├─ claude-cli  : claude -p (Claude subscription)
-   ├─ codex-cli   : codex exec (ChatGPT subscription)
+   ├─ claude-cli      : claude -p (Claude subscription)
+   ├─ codex-cli       : codex exec (ChatGPT subscription)
+   ├─ antigravity-cli : agy -p (Google AI Pro/Ultra subscription)
    └─ anthropic / openai / gemini : your own API keys
 ```
 
@@ -48,7 +49,7 @@ npm run build        # produces extension/dist/
 打开扩展程序的选项页面 —— 它会**自动连接并与助手配对**（无需复制令牌；`POST /v1/pair`）。如果助手未在运行，页面会显示分步操作指引。
 
 1. 确认连接状态（右上角的状态标签变为绿色）
-2. 选择提供商 / 模型（Claude CLI：sonnet/haiku/opus，Codex：gpt-5.5，…）
+2. 选择提供商 / 模型（Claude CLI：Sonnet 5/Haiku 4.5/Opus 4.8，Codex：GPT-5.5，Antigravity：Gemini 3.5 Flash，…）
 3. （可选）填入 API 密钥以使用 API 提供商 —— 密钥仅保存在助手的配置文件中（`~/.config/retone/config.json`，权限 0600），绝不会存储在浏览器里
 
 如果自动配对失败，请手动将 `retone token` 的输出粘贴到高级设置中。
@@ -90,6 +91,7 @@ HTTP API 参考文档：[`docs/api.md`](docs/api.md)
 - **服务条款**：自 2026 年起，提取 OAuth 令牌并直接调用 API 已被禁止（且已在服务端封锁）。Retone 始终只以子进程方式执行官方 CLI 可执行文件。在启动 `claude` 时会从环境变量中移除 `ANTHROPIC_API_KEY`，以确保 CLI 保持订阅模式（如果该密钥存在，用量会在不知不觉中切换为按 API 计费）。
 - X/Threads 的 DOM 变更可能导致直接插入失效 —— 此时 Retone 会自动回退为复制到剪贴板。站点选择器均隔离存放在 `extension/src/content/sites/` 中。
 - 通过 CLI 提供商改写通常需要 5–15 秒，如果同一台机器上还有其他会话（例如 Claude Code）在运行，速度可能更慢。如需快速响应，请选择 API 提供商（例如 Gemini Flash）。
+- **Google 订阅（Antigravity）**：Gemini CLI 的个人/AI Pro 层级已于 2026 年 6 月停止服务，因此 Retone 改用 Antigravity CLI（`agy`）。请从 https://antigravity.google 安装，并在终端运行一次 `~/.local/bin/agy` 完成 Google 账号登录。
 
 ## 隐私
 
