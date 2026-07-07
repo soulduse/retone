@@ -44,6 +44,16 @@ export const SHADOW_CSS = `
 
 .rt-body { padding: 12px 14px; overflow-y: auto; }
 
+.rt-selects { display: flex; gap: 6px; margin-bottom: 10px; }
+.rt-select {
+  flex: 1 1 50%; min-width: 0; padding: 5px 8px;
+  border-radius: 8px; font-size: 12px; cursor: pointer;
+  border: 1px solid rgba(128,128,128,0.4);
+  background: transparent; color: inherit;
+}
+.rt-select:focus { outline: none; border-color: #1d9bf0; }
+.rt-select option { color: #0f1419; background: #fff; }
+
 .rt-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
 .rt-chip {
   padding: 4px 11px; border-radius: 999px; font-size: 12px; cursor: pointer;

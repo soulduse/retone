@@ -1,13 +1,25 @@
 import { loadState, saveSettings } from '../shared/storage.js';
 import { resolvePresets, type Preset } from '../shared/presets.js';
+import { FALLBACK_PROVIDERS } from '../shared/providers.js';
 import { errorMessage } from '../shared/errors.js';
 import { sendBg } from '../shared/rpc.js';
-import type { BgResponse, ErrorCode, Variant } from '../shared/messages.js';
+import type { BgResponse, ErrorCode, ProviderInfo, Variant } from '../shared/messages.js';
 import type { SiteAdapter } from './sites/types.js';
 import { insertText, copyText } from './insert.js';
 import { showToast } from './toast.js';
 
 const send = (msg: Parameters<typeof sendBg>[0]) => sendBg(msg, 240_000); // rewrite는 오래 걸릴 수 있음
+
+// 헬퍼의 실제 provider 목록 — 페이지 세션 동안 1회만 조회, 실패 시 정적 폴백 사용
+let providersCache: ProviderInfo[] | null = null;
+async function fetchProviders(): Promise<ProviderInfo[] | null> {
+  const res = await sendBg({ type: 'helper-models' }, 8_000);
+  if (res.ok && 'data' in res) {
+    const data = res.data as { providers?: ProviderInfo[] };
+    if (Array.isArray(data?.providers) && data.providers.length > 0) return data.providers;
+  }
+  return null;
+}
 
 export class RetonePanel {
   private el: HTMLDivElement;
@@ -20,6 +32,9 @@ export class RetonePanel {
   private requestId: string | null = null;
   private elapsedTimer: number | undefined;
   private insertMode: 'insert' | 'copy' = 'insert';
+  private providers: ProviderInfo[] = FALLBACK_PROVIDERS;
+  private provider = '';
+  private modelByProvider: Record<string, string> = {};
 
   constructor(
     root: ShadowRoot,
@@ -71,12 +86,35 @@ export class RetonePanel {
     );
     if (this.selected.size === 0 && this.presets.length > 0) this.selected.add(this.presets[0].id);
 
-    const model = state.settings.modelByProvider[state.settings.provider];
-    this.meta.textContent = `${state.settings.provider}${model ? ` · ${model}` : ''} ⚙`;
+    this.provider = state.settings.provider;
+    this.modelByProvider = { ...state.settings.modelByProvider };
+    if (providersCache) this.providers = providersCache;
+    this.updateMeta();
 
     this.renderIdle();
     this.el.classList.add('visible');
     this.position();
+
+    // 실제 가용성/모델 목록은 비동기로 갱신 — 도착하면 idle 화면의 셀렉터만 다시 그린다
+    if (!providersCache) {
+      void fetchProviders().then((list) => {
+        if (!list) return;
+        providersCache = list;
+        this.providers = list;
+        if (this.isOpen() && this.body.querySelector('.rt-selects')) this.renderIdle();
+      });
+    }
+  }
+
+  /** 현재 provider의 유효 모델 — 저장값이 없으면 provider 기본값. */
+  private currentModel(): string {
+    const def = this.providers.find((p) => p.id === this.provider);
+    return this.modelByProvider[this.provider] ?? def?.defaultModel ?? '';
+  }
+
+  private updateMeta(): void {
+    const model = this.currentModel();
+    this.meta.textContent = `${this.provider}${model ? ` · ${model}` : ''} ⚙`;
   }
 
   close(): void {
@@ -105,6 +143,7 @@ export class RetonePanel {
 
   private renderIdle(): void {
     this.body.textContent = '';
+    this.body.appendChild(this.buildSelects());
 
     const chips = document.createElement('div');
     chips.className = 'rt-chips';
@@ -135,6 +174,71 @@ export class RetonePanel {
     };
     this.body.appendChild(run);
     this.position();
+  }
+
+  /** provider/모델 인라인 셀렉터 — 설정 페이지와 storage로 동기화된다. */
+  private buildSelects(): HTMLElement {
+    const row = document.createElement('div');
+    row.className = 'rt-selects';
+
+    const provSel = document.createElement('select');
+    provSel.className = 'rt-select';
+    provSel.title = 'AI 프로바이더';
+    for (const p of this.providers) {
+      const opt = document.createElement('option');
+      opt.value = p.id;
+      opt.textContent = p.available ? p.label : `${p.label} — 사용 불가`;
+      opt.disabled = !p.available;
+      opt.selected = p.id === this.provider;
+      provSel.appendChild(opt);
+    }
+    if (!this.providers.some((p) => p.id === this.provider)) {
+      const opt = document.createElement('option');
+      opt.value = this.provider;
+      opt.textContent = this.provider;
+      opt.selected = true;
+      provSel.appendChild(opt);
+    }
+
+    const modelSel = document.createElement('select');
+    modelSel.className = 'rt-select';
+    modelSel.title = '모델';
+    const fillModels = () => {
+      modelSel.textContent = '';
+      const models = this.providers.find((p) => p.id === this.provider)?.models ?? [];
+      const current = this.currentModel();
+      for (const m of models) {
+        const opt = document.createElement('option');
+        opt.value = m.id;
+        opt.textContent = m.label;
+        opt.selected = m.id === current;
+        modelSel.appendChild(opt);
+      }
+      if (current && !models.some((m) => m.id === current)) {
+        const opt = document.createElement('option');
+        opt.value = current;
+        opt.textContent = current;
+        opt.selected = true;
+        modelSel.appendChild(opt);
+      }
+    };
+    fillModels();
+
+    provSel.onchange = () => {
+      this.provider = provSel.value;
+      fillModels();
+      if (modelSel.value) this.modelByProvider[this.provider] = modelSel.value;
+      void saveSettings({ provider: this.provider, modelByProvider: { ...this.modelByProvider } });
+      this.updateMeta();
+    };
+    modelSel.onchange = () => {
+      this.modelByProvider[this.provider] = modelSel.value;
+      void saveSettings({ modelByProvider: { ...this.modelByProvider } });
+      this.updateMeta();
+    };
+
+    row.append(provSel, modelSel);
+    return row;
   }
 
   private renderLoading(): void {
