@@ -128,3 +128,8 @@ chrome.runtime.onMessage.addListener((msg: BgRequest, _sender, sendResponse) => 
   );
   return true; // 비동기 응답
 });
+
+// 툴바 아이콘 클릭 → 옵션(설정) 페이지
+chrome.action.onClicked.addListener(() => {
+  void chrome.runtime.openOptionsPage();
+});

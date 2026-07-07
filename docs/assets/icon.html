@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<title>Retone icon</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body { width: 512px; height: 512px; overflow: hidden; }
+  .badge {
+    position: relative; width: 512px; height: 512px;
+    border-radius: 116px;
+    background: linear-gradient(135deg, #3ba2f2 0%, #2bb4d6 52%, #17c3ab 100%);
+    overflow: hidden;
+  }
+  /* 상단 하이라이트 — 유리 느낌의 깊이 */
+  .badge::before {
+    content: ""; position: absolute; inset: 0;
+    background:
+      radial-gradient(360px 260px at 24% 12%, rgba(255,255,255,0.22), transparent 62%),
+      radial-gradient(420px 320px at 88% 104%, rgba(0,40,60,0.18), transparent 60%);
+  }
+  .r {
+    position: absolute; left: 50%; top: 50%;
+    transform: translate(-56%, -50%);
+    font-family: "Palatino", Georgia, serif; font-style: italic; font-weight: 700;
+    font-size: 350px; line-height: 1; color: #ffffff;
+    text-shadow: 0 10px 30px rgba(0, 40, 60, 0.28);
+  }
+  .spark {
+    position: absolute; left: 71%; top: 17%;
+    font-family: -apple-system, sans-serif; font-style: normal;
+    font-size: 104px; line-height: 1; color: #ffffff;
+    text-shadow: 0 0 26px rgba(255,255,255,0.85), 0 6px 18px rgba(0,40,60,0.25);
+  }
+</style>
+</head>
+<body>
+  <div class="badge">
+    <div class="r">R</div>
+    <div class="spark">✦</div>
+  </div>
+</body>
+</html>

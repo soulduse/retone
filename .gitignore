@@ -1,4 +1,5 @@
 node_modules/
 dist/
 *.local.json
+*.zip
 .DS_Store
