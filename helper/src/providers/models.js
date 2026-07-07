@@ -24,6 +24,7 @@ export const PROVIDERS = {
     models: [
       { id: 'gpt-5.5', label: 'GPT-5.5' },
       { id: 'gpt-5.4', label: 'GPT-5.4' },
+      { id: 'gpt-5.4-mini', label: 'GPT-5.4 mini (빠름)' },
     ],
     defaultModel: 'gpt-5.5',
   },
@@ -31,14 +32,12 @@ export const PROVIDERS = {
     label: 'Antigravity CLI (Google 구독)',
     kind: 'cli',
     command: agyCommand(),
-    // 모델 id는 `agy models` 출력 문자열 그대로 — 잘못된 이름은 agy가 조용히 기본 모델로 폴백하므로 이 목록이 검증선이다.
+    // 모델 id는 `agy models` 출력 문자열 그대로(괄호=추론 강도) — 잘못된 이름은 agy가 조용히 기본 모델로 폴백하므로 이 목록이 검증선이다.
+    // agy는 모델×추론강도 조합 8종을 노출하지만 리라이팅엔 과해서 실용 구성 3개만 담는다.
     models: [
-      { id: 'Gemini 3.5 Flash (Low)', label: 'Gemini 3.5 Flash Low (빠름)' },
-      { id: 'Gemini 3.5 Flash (Medium)', label: 'Gemini 3.5 Flash Medium' },
+      { id: 'Gemini 3.5 Flash (Low)', label: 'Gemini 3.5 Flash (빠름)' },
       { id: 'Gemini 3.5 Flash (High)', label: 'Gemini 3.5 Flash High' },
-      { id: 'Gemini 3.1 Pro (Low)', label: 'Gemini 3.1 Pro Low' },
-      { id: 'Gemini 3.1 Pro (High)', label: 'Gemini 3.1 Pro High' },
-      { id: 'GPT-OSS 120B (Medium)', label: 'GPT-OSS 120B' },
+      { id: 'Gemini 3.1 Pro (High)', label: 'Gemini 3.1 Pro' },
     ],
     defaultModel: 'Gemini 3.5 Flash (Low)',
   },
@@ -58,10 +57,12 @@ export const PROVIDERS = {
     kind: 'api',
     keyName: 'openai',
     models: [
-      { id: 'gpt-5-mini', label: 'GPT-5 mini (빠름)' },
-      { id: 'gpt-5', label: 'GPT-5' },
+      { id: 'gpt-5.4-mini', label: 'GPT-5.4 mini (빠름)' },
+      { id: 'gpt-5.4-nano', label: 'GPT-5.4 nano (최저가)' },
+      { id: 'gpt-5.4', label: 'GPT-5.4' },
+      { id: 'gpt-5.5', label: 'GPT-5.5' },
     ],
-    defaultModel: 'gpt-5-mini',
+    defaultModel: 'gpt-5.4-mini',
   },
   gemini: {
     label: 'Gemini API (키)',

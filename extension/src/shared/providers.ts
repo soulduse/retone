@@ -25,6 +25,7 @@ export const FALLBACK_PROVIDERS: ProviderInfo[] = [
     models: [
       { id: 'gpt-5.5', label: 'GPT-5.5' },
       { id: 'gpt-5.4', label: 'GPT-5.4' },
+      { id: 'gpt-5.4-mini', label: 'GPT-5.4 mini (빠름)' },
     ],
     defaultModel: 'gpt-5.5',
   },
@@ -34,12 +35,9 @@ export const FALLBACK_PROVIDERS: ProviderInfo[] = [
     kind: 'cli',
     available: true,
     models: [
-      { id: 'Gemini 3.5 Flash (Low)', label: 'Gemini 3.5 Flash Low (빠름)' },
-      { id: 'Gemini 3.5 Flash (Medium)', label: 'Gemini 3.5 Flash Medium' },
+      { id: 'Gemini 3.5 Flash (Low)', label: 'Gemini 3.5 Flash (빠름)' },
       { id: 'Gemini 3.5 Flash (High)', label: 'Gemini 3.5 Flash High' },
-      { id: 'Gemini 3.1 Pro (Low)', label: 'Gemini 3.1 Pro Low' },
-      { id: 'Gemini 3.1 Pro (High)', label: 'Gemini 3.1 Pro High' },
-      { id: 'GPT-OSS 120B (Medium)', label: 'GPT-OSS 120B' },
+      { id: 'Gemini 3.1 Pro (High)', label: 'Gemini 3.1 Pro' },
     ],
     defaultModel: 'Gemini 3.5 Flash (Low)',
   },
@@ -61,10 +59,12 @@ export const FALLBACK_PROVIDERS: ProviderInfo[] = [
     kind: 'api',
     available: true,
     models: [
-      { id: 'gpt-5-mini', label: 'GPT-5 mini (빠름)' },
-      { id: 'gpt-5', label: 'GPT-5' },
+      { id: 'gpt-5.4-mini', label: 'GPT-5.4 mini (빠름)' },
+      { id: 'gpt-5.4-nano', label: 'GPT-5.4 nano (최저가)' },
+      { id: 'gpt-5.4', label: 'GPT-5.4' },
+      { id: 'gpt-5.5', label: 'GPT-5.5' },
     ],
-    defaultModel: 'gpt-5-mini',
+    defaultModel: 'gpt-5.4-mini',
   },
   {
     id: 'gemini',
