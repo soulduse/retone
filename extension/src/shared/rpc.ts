@@ -21,9 +21,14 @@ export function sendBg(msg: BgRequest, timeoutMs = 15_000): Promise<BgResponse> 
       }),
       timeoutMs,
     );
+    // null/undefined는 물론, ok 필드가 없는 비정상 응답도 실패로 변환
+    const coerce = (res: unknown): BgResponse =>
+      typeof res === 'object' && res !== null && 'ok' in res
+        ? (res as BgResponse)
+        : { ok: false, code: 'UNKNOWN', detail: '빈 응답 — 확장을 새로고침한 뒤 이 페이지를 다시 열어주세요.' };
     try {
       chrome.runtime.sendMessage(msg).then(
-        (res) => finish((res as BgResponse) ?? { ok: false, code: 'UNKNOWN', detail: '빈 응답' }),
+        (res) => finish(coerce(res)),
         (err) => finish({
           ok: false,
           code: 'UNKNOWN',
