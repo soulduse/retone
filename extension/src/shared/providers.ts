@@ -36,7 +36,7 @@ export const FALLBACK_PROVIDERS: ProviderInfo[] = [
     available: true,
     models: [
       { id: 'Gemini 3.5 Flash (Low)', label: 'Gemini 3.5 Flash (빠름)' },
-      { id: 'Gemini 3.5 Flash (High)', label: 'Gemini 3.5 Flash High' },
+      { id: 'Gemini 3.5 Flash (High)', label: 'Gemini 3.5 Flash (추론 강화)' }, // 괄호=추론 강도, 별도 모델 아님
       { id: 'Gemini 3.1 Pro (High)', label: 'Gemini 3.1 Pro' },
     ],
     defaultModel: 'Gemini 3.5 Flash (Low)',
