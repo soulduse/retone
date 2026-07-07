@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<title>Retone demo</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1200px; height: 760px; overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Segoe UI", sans-serif;
+    background: #0b0e11;
+    background-image:
+      radial-gradient(900px 500px at 20% -10%, rgba(29,155,240,0.14), transparent 60%),
+      radial-gradient(700px 500px at 95% 110%, rgba(0,179,155,0.10), transparent 60%);
+    color: #e7e9ea;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .stage { position: relative; width: 1080px; height: 660px; }
+
+  /* 워드마크 */
+  .brand {
+    position: absolute; top: 0; left: 8px;
+    font-family: "Palatino", Georgia, serif; font-style: italic; font-weight: 700;
+    font-size: 30px; letter-spacing: -0.5px;
+    background: linear-gradient(100deg, #3ba2f2, #17c3ab);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .brand .spark { font-style: normal; font-size: 18px; vertical-align: 8px; }
+  .tagline { position: absolute; top: 44px; left: 10px; font-size: 13.5px; color: #8b95a1; }
+
+  /* X 컴포저 목업 */
+  .composer {
+    position: absolute; top: 172px; left: 8px; width: 560px;
+    background: #15181c; border: 1px solid #2a3138; border-radius: 18px;
+    padding: 20px 20px 16px; box-shadow: 0 20px 60px -30px rgba(0,0,0,0.8);
+  }
+  .composer .row { display: flex; gap: 14px; }
+  .avatar {
+    width: 44px; height: 44px; border-radius: 50%; flex: 0 0 auto;
+    background: linear-gradient(135deg, #3ba2f2, #7ac8ff);
+  }
+  .draft { font-size: 16.5px; line-height: 1.55; padding-top: 8px; color: #e7e9ea; }
+  .draft .caret { display: inline-block; width: 2px; height: 19px; background: #3ba2f2; vertical-align: -3px; }
+  .composer .toolbar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 18px; padding-top: 12px; border-top: 1px solid #22282e;
+  }
+  .toolbar .icons { display: flex; gap: 14px; }
+  .toolbar .icons span { width: 18px; height: 18px; border-radius: 5px; background: rgba(59,162,242,0.35); display: inline-block; }
+  .post-btn {
+    background: #eff3f4; color: #0f1419; font-weight: 800; font-size: 14px;
+    padding: 8px 20px; border-radius: 999px;
+  }
+  /* Re✦ 버튼 */
+  .rt-btn {
+    position: absolute; top: 14px; right: 16px;
+    display: inline-flex; align-items: center;
+    height: 28px; padding: 0 12px; border-radius: 999px;
+    border: 1px solid rgba(29,155,240,0.55);
+    background: rgba(29,155,240,0.16); color: #4db2f5;
+    font-size: 12.5px; font-weight: 800;
+    box-shadow: 0 0 18px rgba(29,155,240,0.25);
+  }
+
+  /* Retone 패널 */
+  .panel {
+    position: absolute; top: 128px; right: 0; width: 430px;
+    background: #191d21; border: 1px solid #333c44; border-radius: 16px;
+    box-shadow: 0 30px 80px -30px rgba(0,0,0,0.9);
+    font-size: 13px; overflow: hidden;
+  }
+  .panel-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px; border-bottom: 1px solid #262c33;
+  }
+  .panel-title { font-weight: 800; font-size: 13.5px; }
+  .panel-meta { font-size: 11px; color: #8b95a1; }
+  .panel-body { padding: 14px 16px 16px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  .chip {
+    padding: 5px 12px; border-radius: 999px; font-size: 12px;
+    border: 1px solid #3c454e; color: #aeb6bd;
+  }
+  .chip.on { background: #1d9bf0; border-color: #1d9bf0; color: #fff; font-weight: 700; }
+  .card {
+    border: 1px solid #333c44; border-radius: 12px; padding: 11px 13px; margin-bottom: 9px;
+    background: #14171b;
+  }
+  .card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .badge {
+    font-size: 11px; font-weight: 800; color: #4db2f5;
+    background: rgba(29,155,240,0.14); padding: 2px 9px; border-radius: 999px;
+  }
+  .card-text { line-height: 1.5; color: #dfe3e6; }
+  .card-actions { display: flex; gap: 6px; margin-top: 9px; }
+  .card-actions span {
+    padding: 4px 13px; border-radius: 999px; font-size: 11.5px; font-weight: 600;
+    border: 1px solid #3c454e; color: #aeb6bd;
+  }
+  .card-actions span.primary { background: rgba(29,155,240,0.16); border-color: rgba(29,155,240,0.5); color: #4db2f5; }
+
+  /* 주석 callout */
+  .note {
+    position: absolute; font-size: 13px; font-weight: 700; color: #17c3ab;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .note .n {
+    width: 22px; height: 22px; border-radius: 50%; flex: 0 0 auto;
+    background: rgba(23,195,171,0.15); border: 1.5px solid #17c3ab;
+    display: flex; align-items: center; justify-content: center; font-size: 12px;
+  }
+  .note-1 { top: 138px; left: 12px; color: #4db2f5; }
+  .note-1 .n { border-color: #4db2f5; background: rgba(29,155,240,0.12); }
+  .note-2 { top: 64px; right: 12px; }
+  .note-3 { top: 470px; left: 12px; }
+
+  /* 좌하단 채움 — provider 스트립 */
+  .providers {
+    position: absolute; top: 508px; left: 8px; width: 560px;
+    background: rgba(21,24,28,0.6); border: 1px solid #232a31; border-radius: 14px;
+    padding: 14px 18px;
+  }
+  .providers .p-label { font-size: 11px; font-weight: 800; letter-spacing: 1.2px; color: #66707a; margin-bottom: 9px; }
+  .providers .p-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+  .providers .p-chips span {
+    padding: 5px 13px; border-radius: 999px; font-size: 12px; font-weight: 600;
+    border: 1px solid #333c44; color: #aeb6bd; background: #14171b;
+  }
+  .providers .p-chips span.sub { border-color: rgba(23,195,171,0.45); color: #2ecfb6; }
+
+  .footer {
+    position: absolute; bottom: 0; left: 10px;
+    font-size: 12.5px; color: #66707a;
+  }
+  .footer b { color: #8b95a1; }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="brand">Re<span class="spark">✦</span>tone</div>
+    <div class="tagline">Rewrite your X / Threads drafts in multiple tones — local-first, your own AI subscription.</div>
+
+    <div class="note note-1"><span class="n">1</span> Write a draft → click Re✦</div>
+
+    <div class="composer">
+      <div class="rt-btn">Re✦</div>
+      <div class="row">
+        <div class="avatar"></div>
+        <div class="draft">오늘 사이드프로젝트 하나 완성했다 진짜 뿌듯하네ㅋㅋ 담주에 공개할까 하는데 반응 있을지 모르겠다<span class="caret"></span></div>
+      </div>
+      <div class="toolbar">
+        <div class="icons"><span></span><span></span><span></span><span></span></div>
+        <div class="post-btn">게시하기</div>
+      </div>
+    </div>
+
+    <div class="note note-2"><span class="n">2</span> Pick tones → 다듬기</div>
+    <div class="note note-3"><span class="n">3</span> Insert the one you like — it lands right in the compose box</div>
+
+    <div class="providers">
+      <div class="p-label">PROVIDERS</div>
+      <div class="p-chips">
+        <span class="sub">Claude CLI (subscription)</span>
+        <span class="sub">Codex CLI (subscription)</span>
+        <span>Anthropic API</span>
+        <span>OpenAI API</span>
+        <span>Gemini API</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <span class="panel-title">Retone</span>
+        <span class="panel-meta">claude-cli · sonnet ⚙</span>
+      </div>
+      <div class="panel-body">
+        <div class="chips">
+          <span class="chip on">심플 다듬기</span>
+          <span class="chip on">바이럴/후킹</span>
+          <span class="chip on">영어 번역</span>
+          <span class="chip">정중</span>
+          <span class="chip">위트</span>
+          <span class="chip">간결</span>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><span class="badge">심플 다듬기</span></div>
+          <div class="card-text">오늘 사이드프로젝트 하나를 완성했다. 진짜 뿌듯하네ㅋㅋ 다음 주에 공개할 예정인데 반응이 있을지 궁금하다.</div>
+          <div class="card-actions"><span class="primary">삽입</span><span>복사</span><span>↻</span></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><span class="badge">바이럴/후킹</span></div>
+          <div class="card-text">사이드프로젝트, 오늘 완성했다.<br>다음 주 공개. 반응이 어떨지 벌써 떨린다ㅋㅋ</div>
+          <div class="card-actions"><span class="primary">삽입</span><span>복사</span><span>↻</span></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><span class="badge">영어 번역</span></div>
+          <div class="card-text">Just finished a side project today — feeling really proud 😄 Planning to launch next week, curious how people will react.</div>
+          <div class="card-actions"><span class="primary">삽입</span><span>복사</span><span>↻</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">Runs on <b>your machine</b> · Claude Pro/Max & ChatGPT subscription via official CLIs · or BYO API keys (Anthropic/OpenAI/Gemini)</div>
+  </div>
+</body>
+</html>
