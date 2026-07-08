@@ -1,4 +1,5 @@
 import type { SiteAdapter } from './types.js';
+import { readComposerText } from './dom.js';
 
 // X(트위터)는 Draft.js 기반. data-testid는 tweetTextarea_0, tweetTextarea_1(스레드 추가글),
 // 답글 모달 등 suffix가 달라지므로 prefix 매칭으로 커버한다.
@@ -13,7 +14,8 @@ export const xAdapter: SiteAdapter = {
   },
 
   getText(composer) {
-    return composer.textContent ?? '';
+    // Draft.js는 이모지를 <img alt>로 렌더 — textContent는 이모지를 잃는다
+    return readComposerText(composer);
   },
 
   kind() {

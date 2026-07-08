@@ -1,4 +1,5 @@
 import type { SiteAdapter } from './types.js';
+import { readComposerText } from './dom.js';
 
 // Threads는 Lexical 기반 contenteditable.
 const PRIMARY = 'div[contenteditable="true"][data-lexical-editor="true"]';
@@ -14,7 +15,7 @@ export const threadsAdapter: SiteAdapter = {
   },
 
   getText(composer) {
-    return composer.textContent ?? '';
+    return readComposerText(composer);
   },
 
   kind(composer) {
