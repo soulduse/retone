@@ -329,7 +329,7 @@ export class RetonePanel {
           this.close();
           showToast('입력창에 넣었어요 ✓');
         } else if (result === 'copied') {
-          showToast('직접 삽입에 실패해 클립보드에 복사했어요 — ⌘V로 붙여넣으세요');
+          showToast('직접 삽입에 실패해 클립보드에 복사했어요 — 전체 선택(⌘A) 후 붙여넣기(⌘V) 하세요');
         } else {
           showToast('삽입과 복사 모두 실패했어요');
         }
