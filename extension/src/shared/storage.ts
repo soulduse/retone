@@ -9,6 +9,10 @@ export interface Settings {
   insertMode: 'insert' | 'copy';
   /** retone 저장소 로컬 경로 — 헬퍼 실행 안내 명령에 사용 (비우면 일반 안내) */
   installPath: string;
+  /** Retone Cloud 라이선스 키 — 비우면 무료 체험(디바이스 기준 일 5회) */
+  cloudLicenseKey: string;
+  /** 체험 쿼터 식별용 디바이스 ID — 최초 Cloud 사용 시 생성 */
+  cloudDeviceId: string;
 }
 
 export interface StoredState {
@@ -26,6 +30,8 @@ export const DEFAULT_SETTINGS: Settings = {
   selectedPresetIds: ['polish', 'concise', 'viral'],
   insertMode: 'insert',
   installPath: '',
+  cloudLicenseKey: '',
+  cloudDeviceId: '',
 };
 
 const DEFAULTS: StoredState = {

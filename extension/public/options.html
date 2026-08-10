@@ -53,12 +53,28 @@
           <span class="field-label">Provider</span>
           <select id="provider"></select>
         </label>
-        <label class="field grow">
+        <label class="field grow" id="modelField">
           <span class="field-label">모델</span>
           <select id="model"></select>
         </label>
       </div>
       <p class="hint" id="providerHint"></p>
+    </section>
+
+    <section class="card" id="cloudCard">
+      <div class="card-title"><span class="tick"></span>Retone Cloud
+        <span class="title-sub">터미널·설치 없이 바로 — 무료 체험 하루 5회</span>
+      </div>
+      <p class="hint" style="margin-top:0">
+        헬퍼 없이 Retone 서버가 대신 다듬어 드려요. 무료로 하루 5회 써보고, 마음에 들면 구독으로 제한 없이 쓸 수 있어요.
+        작성 중인 글은 다듬는 동안만 처리되고 저장되지 않습니다.
+      </p>
+      <label class="field"><span class="field-label">라이선스 키</span>
+        <input type="password" id="cloudLicenseKey" placeholder="구독 후 이메일로 받은 키 — 비우면 무료 체험" spellcheck="false" /></label>
+      <div class="actions">
+        <button id="saveCloudKey" class="btn">키 저장</button>
+        <span id="cloudStatus" class="inline-status"></span>
+      </div>
     </section>
 
     <section class="card">

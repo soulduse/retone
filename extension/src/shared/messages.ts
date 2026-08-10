@@ -18,6 +18,7 @@ export type BgRequest =
   | { type: 'helper-models' }
   | { type: 'helper-save-keys'; keys: Partial<Record<'anthropic' | 'openai' | 'gemini', string>> }
   | { type: 'helper-pair' }
+  | { type: 'cloud-quota' }
   | { type: 'open-options' };
 
 export type ErrorCode =
@@ -30,6 +31,9 @@ export type ErrorCode =
   | 'PROVIDER_ERROR'
   | 'BAD_REQUEST'
   | 'CANCELLED'
+  | 'CLOUD_UNREACHABLE'
+  | 'LICENSE_INVALID'
+  | 'QUOTA_EXCEEDED'
   | 'UNKNOWN';
 
 export interface Variant {
@@ -42,10 +46,17 @@ export type BgResponse =
   | { ok: true; data: unknown }
   | { ok: false; code: ErrorCode; detail?: string };
 
+export interface CloudQuota {
+  plan: 'trial' | 'paid';
+  remaining: number;
+  limit: number;
+  resetAt?: string;
+}
+
 export interface ProviderInfo {
   id: string;
   label: string;
-  kind: 'cli' | 'api';
+  kind: 'cli' | 'api' | 'cloud';
   available: boolean;
   version?: string;
   reason?: string;

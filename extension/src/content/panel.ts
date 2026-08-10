@@ -1,6 +1,7 @@
 import { loadState, saveSettings } from '../shared/storage.js';
 import { resolvePresets, type Preset } from '../shared/presets.js';
 import { FALLBACK_PROVIDERS } from '../shared/providers.js';
+import { withCloud } from '../shared/cloud.js';
 import { errorMessage } from '../shared/errors.js';
 import { sendBg } from '../shared/rpc.js';
 import type { BgResponse, ErrorCode, ProviderInfo, Variant } from '../shared/messages.js';
@@ -16,7 +17,7 @@ async function fetchProviders(): Promise<ProviderInfo[] | null> {
   const res = await sendBg({ type: 'helper-models' }, 8_000);
   if (res.ok && 'data' in res) {
     const data = res.data as { providers?: ProviderInfo[] };
-    if (Array.isArray(data?.providers) && data.providers.length > 0) return data.providers;
+    if (Array.isArray(data?.providers) && data.providers.length > 0) return withCloud(data.providers);
   }
   return null;
 }
@@ -32,7 +33,7 @@ export class RetonePanel {
   private requestId: string | null = null;
   private elapsedTimer: number | undefined;
   private insertMode: 'insert' | 'copy' = 'insert';
-  private providers: ProviderInfo[] = FALLBACK_PROVIDERS;
+  private providers: ProviderInfo[] = withCloud(FALLBACK_PROVIDERS);
   private provider = '';
   private modelByProvider: Record<string, string> = {};
 
@@ -113,8 +114,9 @@ export class RetonePanel {
   }
 
   private updateMeta(): void {
+    const label = this.providers.find((p) => p.id === this.provider)?.label ?? this.provider;
     const model = this.currentModel();
-    this.meta.textContent = `${this.provider}${model ? ` · ${model}` : ''} ⚙`;
+    this.meta.textContent = `${model ? `${this.provider} · ${model}` : label} ⚙`;
   }
 
   close(): void {
@@ -221,6 +223,8 @@ export class RetonePanel {
         opt.selected = true;
         modelSel.appendChild(opt);
       }
+      // 모델 개념이 없는 provider(Retone Cloud)는 셀렉터 자체를 숨긴다
+      modelSel.style.display = modelSel.options.length === 0 ? 'none' : '';
     };
     fillModels();
 
@@ -259,10 +263,20 @@ export class RetonePanel {
     row.append(spinner, label, cancel);
     this.body.appendChild(row);
 
+    // 지연 안내 — CLI provider는 같은 컴퓨터의 다른 AI 작업량에 따라 수십 초까지 늘어질 수 있다
+    const hint = document.createElement('div');
+    hint.className = 'rt-loading-hint';
+    this.body.appendChild(hint);
+
     const started = Date.now();
     clearInterval(this.elapsedTimer);
     this.elapsedTimer = window.setInterval(() => {
-      label.textContent = `다듬는 중 · ${Math.round((Date.now() - started) / 1000)}s (보통 5~15초)`;
+      const s = Math.round((Date.now() - started) / 1000);
+      label.textContent = `다듬는 중 · ${s}s${s < 20 ? ' (보통 5~15초)' : ''}`;
+      if (s >= 20 && !hint.textContent) {
+        hint.textContent = '평소보다 오래 걸리고 있어요 — 이 컴퓨터에서 다른 AI 작업이 실행 중이면 느려질 수 있어요. 취소 후 다른 AI로 바꿔도 돼요.';
+        this.position();
+      }
     }, 1000);
     this.position();
   }
@@ -272,8 +286,18 @@ export class RetonePanel {
     const box = document.createElement('div');
     box.className = 'rt-error';
     box.textContent = `⚠️ ${errorMessage(code, detail)}`;
+
+    // 설정에서 해결해야 하는 에러는 행동 버튼을 우선 노출
+    const fixInOptions = (['HELPER_UNREACHABLE', 'UNAUTHORIZED', 'CLI_NOT_FOUND', 'NO_API_KEY', 'LICENSE_INVALID', 'QUOTA_EXCEEDED'] as ErrorCode[]).includes(code);
+    if (fixInOptions) {
+      const open = document.createElement('button');
+      open.className = 'rt-primary';
+      open.textContent = '설정 열기';
+      open.onclick = () => send({ type: 'open-options' });
+      box.appendChild(open);
+    }
     const retry = document.createElement('button');
-    retry.className = 'rt-primary';
+    retry.className = fixInOptions ? 'rt-cancel' : 'rt-primary';
     retry.textContent = '다시 시도';
     retry.onclick = () => this.renderIdle();
     box.appendChild(retry);

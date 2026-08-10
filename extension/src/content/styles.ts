@@ -80,8 +80,11 @@ export const SHADOW_CSS = `
   border: 1px solid rgba(128,128,128,0.4); background: transparent; color: inherit;
 }
 
+.rt-loading-hint { font-size: 12px; opacity: 0.75; line-height: 1.5; padding: 0 2px 8px; }
+
 .rt-error { padding: 10px 2px; line-height: 1.5; }
 .rt-error .rt-primary { margin-top: 10px; }
+.rt-error .rt-cancel { display: block; width: 100%; margin: 8px 0 0; padding: 8px 0; text-align: center; }
 
 .rt-card {
   border: 1px solid rgba(128,128,128,0.3); border-radius: 10px;

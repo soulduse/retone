@@ -1,15 +1,18 @@
 import { loadState, saveSettings, saveState } from '../shared/storage.js';
 import { BUILTIN_PRESETS, type Preset, type BuiltinOverride } from '../shared/presets.js';
 import { FALLBACK_PROVIDERS } from '../shared/providers.js';
+import { withCloud } from '../shared/cloud.js';
 import { errorMessage } from '../shared/errors.js';
 import { sendBg } from '../shared/rpc.js';
-import type { ProviderInfo } from '../shared/messages.js';
+import type { CloudQuota, ProviderInfo } from '../shared/messages.js';
 
-// 헬퍼 실행 안내 명령 — 설치 경로는 사용자마다 다르므로 고급 설정 값으로 조립한다
+// 헬퍼 설치 안내 명령 — 기본은 npm 전역 설치 한 줄(npx 캐시 경로는 launchd 등록에 부적합).
+// 소스에서 직접 실행하는 개발자용 명령은 고급 설정의 경로 값으로 조립한다.
 let installPath = '';
 const dir = () => installPath.trim().replace(/\/$/, '') || '<retone-폴더-경로>';
-const cmdStart = () => `cd ${dir()} && npm start`;
-const cmdAutostart = () => `cd ${dir()}/helper && node src/index.js install`;
+const cmdInstall = 'npm install -g retone && retone install';
+const cmdStart = () => (installPath.trim() ? `cd ${dir()} && npm start` : cmdInstall);
+const cmdAutostart = () => (installPath.trim() ? `cd ${dir()}/helper && node src/index.js install` : cmdInstall);
 
 const $ = <T extends HTMLElement>(sel: string) => document.querySelector(sel) as T;
 const input = (sel: string) => $(sel) as unknown as HTMLInputElement;
@@ -104,7 +107,9 @@ function renderConn(state: ConnState, detail?: string): void {
     step2Body.style.flex = '1';
     step2Body.style.minWidth = '0';
     const step2Text = document.createElement('span');
-    step2Text.innerHTML = '아래 명령을 붙여넣고 <strong>Enter</strong> (경로가 다르면 고급 설정에서 변경)';
+    step2Text.innerHTML = installPath.trim()
+      ? '아래 명령을 붙여넣고 <strong>Enter</strong> (경로가 다르면 고급 설정에서 변경)'
+      : '아래 명령을 붙여넣고 <strong>Enter</strong> — 설치부터 자동 시작 등록까지 한 번에 끝나요 (<a href="https://nodejs.org" target="_blank" rel="noreferrer">Node.js 18+</a> 필요)';
     step2Body.append(step2Text, copyRow(cmdStart()));
     step2.appendChild(step2Body);
     steps.appendChild(step2);
@@ -120,12 +125,15 @@ function renderConn(state: ConnState, detail?: string): void {
 
     wrap.appendChild(steps);
 
-    const tip = document.createElement('div');
-    tip.className = 'tip';
-    const tipText = document.createElement('div');
-    tipText.innerHTML = '💡 매번 켜기 번거롭다면, 아래 명령을 <strong>한 번만</strong> 실행해 두세요. 이후엔 컴퓨터를 켤 때 헬퍼가 자동으로 실행됩니다 (macOS).';
-    tip.append(tipText, copyRow(cmdAutostart()));
-    wrap.appendChild(tip);
+    // 소스 실행(개발자) 경로일 때만 자동 시작 팁을 별도 노출 — 기본 명령은 이미 자동 시작까지 포함
+    if (installPath.trim()) {
+      const tip = document.createElement('div');
+      tip.className = 'tip';
+      const tipText = document.createElement('div');
+      tipText.innerHTML = '💡 매번 켜기 번거롭다면, 아래 명령을 <strong>한 번만</strong> 실행해 두세요. 이후엔 컴퓨터를 켤 때 헬퍼가 자동으로 실행됩니다 (macOS).';
+      tip.append(tipText, copyRow(cmdAutostart()));
+      wrap.appendChild(tip);
+    }
   }
 
   if (state === 'fail') {
@@ -143,6 +151,17 @@ function renderConn(state: ConnState, detail?: string): void {
   }
 
   box.appendChild(wrap);
+}
+
+// 미연결 상태에서 조용히 health만 폴링 — 살아나는 순간 전체 연결 플로우로 승격 (UI 깜빡임 없음)
+let offPollTimer: number | undefined;
+function scheduleOffPoll(): void {
+  clearTimeout(offPollTimer);
+  offPollTimer = window.setTimeout(async () => {
+    const health = await send({ type: 'helper-health' });
+    if (health.ok) void connect();
+    else scheduleOffPoll();
+  }, 3000);
 }
 
 /** health → (필요 시 자동 페어링) → models. 옵션 페이지 진입 시 자동 실행. */
@@ -165,6 +184,8 @@ async function connectInner(): Promise<void> {
     renderConn('off');
     renderBadges();
     renderProviderSelects();
+    // 사용자가 터미널에서 설치를 마치는 순간 화면이 스스로 "연결됨"으로 바뀌도록 폴링
+    scheduleOffPoll();
     return;
   }
 
@@ -208,7 +229,7 @@ async function renderProviderSelects(): Promise<void> {
   const { settings } = await loadState();
   const providerSel = select('#provider');
   const modelSel = select('#model');
-  const providers = liveProviders ?? FALLBACK_PROVIDERS;
+  const providers = withCloud(liveProviders ?? FALLBACK_PROVIDERS);
 
   providerSel.textContent = '';
   for (const p of providers) {
@@ -233,6 +254,8 @@ async function renderProviderSelects(): Promise<void> {
     modelSel.appendChild(opt);
   }
   modelSel.value = settings.modelByProvider[providerSel.value] || active?.defaultModel || '';
+  // 모델 개념이 없는 provider(Retone Cloud)는 모델 필드를 통째로 숨긴다
+  $('#modelField').style.display = (active?.models.length ?? 0) === 0 ? 'none' : '';
 
   $('#providerHint').textContent = liveProviders
     ? ''
@@ -387,6 +410,32 @@ async function init(): Promise<void> {
       await connect();
     }
   };
+
+  // Retone Cloud — 라이선스 키 저장 + 잔여 쿼터 표시
+  const cloudKey = input('#cloudLicenseKey');
+  cloudKey.value = state.settings.cloudLicenseKey ?? '';
+  const cloudStatus = $('#cloudStatus');
+  const refreshQuota = async () => {
+    const res = await send({ type: 'cloud-quota' });
+    if (res.ok && 'data' in res) {
+      const q = res.data as CloudQuota;
+      cloudStatus.className = 'inline-status ok';
+      cloudStatus.textContent =
+        q.plan === 'paid' ? `구독 중 · 오늘 ${q.remaining}회 남음` : `무료 체험 · 오늘 ${q.remaining}/${q.limit}회 남음`;
+    } else if (!res.ok && res.code !== 'CLOUD_UNREACHABLE' && res.code !== 'TIMEOUT') {
+      cloudStatus.className = 'inline-status err';
+      cloudStatus.textContent = errorMessage(res.code, res.detail);
+    } else {
+      cloudStatus.className = 'inline-status';
+      cloudStatus.textContent = ''; // 서버 미개통/오프라인 — 조용히 넘어간다
+    }
+  };
+  $('#saveCloudKey').onclick = async () => {
+    await saveSettings({ cloudLicenseKey: cloudKey.value.trim() });
+    toast();
+    await refreshQuota();
+  };
+  void refreshQuota();
 
   const seg = $('#insertModeSeg');
   const syncSeg = (mode: string) => {
