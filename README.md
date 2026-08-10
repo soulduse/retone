@@ -21,7 +21,16 @@ Local helper (zero-dependency Node ESM)
 
 ## Install
 
-### 1. Run the helper
+### 1. Install the helper (one line, recommended)
+
+With [Node.js 18+](https://nodejs.org), one line installs the helper and registers auto-start (macOS launchd):
+
+```bash
+npm install -g retone && retone install    # undo: retone uninstall
+```
+
+<details>
+<summary>Run from source (for developers)</summary>
 
 ```bash
 git clone https://github.com/soulduse/retone.git
@@ -30,11 +39,9 @@ npm install          # devDeps for building the extension (the helper itself is 
 npm start            # starts the helper on 127.0.0.1:7386
 ```
 
-**Auto-start (recommended, macOS)** — run once and the helper is always running after login:
+Register auto-start: `cd helper && node src/index.js install`
 
-```bash
-cd helper && node src/index.js install     # undo: uninstall
-```
+</details>
 
 ### 2. Build & load the extension
 

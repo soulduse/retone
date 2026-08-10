@@ -21,7 +21,16 @@ Local helper (zero-dependency Node ESM)
 
 ## 설치
 
-### 1. 헬퍼 실행
+### 1. 헬퍼 설치 (한 줄, 권장)
+
+[Node.js 18+](https://nodejs.org)가 있다면 아래 한 줄이면 끝 — 설치와 자동 시작(macOS launchd) 등록까지 한 번에 됩니다:
+
+```bash
+npm install -g retone && retone install    # undo: retone uninstall
+```
+
+<details>
+<summary>소스에서 직접 실행 (개발자용)</summary>
 
 ```bash
 git clone https://github.com/soulduse/retone.git
@@ -30,11 +39,9 @@ npm install          # devDeps for building the extension (the helper itself is 
 npm start            # starts the helper on 127.0.0.1:7386
 ```
 
-**자동 시작 (권장, macOS)** — 한 번만 실행해 두면 로그인 후 헬퍼가 항상 켜져 있습니다:
+자동 시작 등록: `cd helper && node src/index.js install`
 
-```bash
-cd helper && node src/index.js install     # undo: uninstall
-```
+</details>
 
 ### 2. 확장 프로그램 빌드 & 로드
 

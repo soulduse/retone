@@ -58,12 +58,13 @@ Rewrites the user's X/Threads draft text into user-selected tones and inserts th
 |---|---|
 | `storage` | Stores the user's settings and tone presets locally. Nothing is synced or uploaded. |
 | `clipboardWrite` | Implements the "Copy" button and the clipboard fallback used when direct insertion into the compose box is not possible. |
-| `host_permissions (127.0.0.1, localhost)` | Communicates with the Retone helper application that runs on the user's own machine at 127.0.0.1:7386. No remote servers are contacted by the extension. |
+| `host_permissions (127.0.0.1, localhost)` | Communicates with the Retone helper application that runs on the user's own machine at 127.0.0.1:7386. Used for the default self-hosted mode. |
+| `host_permissions (api.retone.dev)` | Communicates with the optional "Retone Cloud" hosted rewriting service, only when the user explicitly selects the Retone Cloud provider. Drafts are processed in memory and never stored; see the privacy policy. |
 | 콘텐츠 스크립트 (x.com 등) | Adds a rewrite button next to the compose box and reads only the draft the user explicitly submits for rewriting. |
 
 **원격 코드(Remote code) 사용 여부**: **아니요** — 모든 JS는 패키지에 번들되어 있음 (esbuild, 외부 스크립트 로드 없음).
 
-**데이터 사용(Data usage) 체크리스트**: 수집 항목 **전부 체크 해제** (개인 통신, 위치, 사용자 활동 등 아무것도 수집하지 않음). 하단의 인증 문구 3개(데이터를 판매하지 않음 등)에 동의 체크.
+**데이터 사용(Data usage) 체크리스트**: "User activity" 등 수집 항목 **전부 체크 해제**. Cloud 사용 시에도 저장·프로파일링 없이 일시 처리(웹사이트 콘텐츠=사용자가 명시 제출한 초안만 전송)이므로 "Website content" 항목만 상황에 따라 체크 검토 — 체크 시 용도는 "App functionality". 하단의 인증 문구 3개(데이터를 판매하지 않음 등)에 동의 체크.
 
 **개인정보처리방침 URL**:
 
@@ -82,7 +83,7 @@ https://github.com/soulduse/retone/blob/master/PRIVACY.md
 심사자는 로컬 헬퍼 없이 테스트하므로, 대시보드의 검토자 노트에 아래를 남긴다:
 
 ```
-This extension requires a companion helper app running locally (open source: https://github.com/soulduse/retone). Without the helper, the extension degrades gracefully: the options page shows setup instructions and the rewrite panel shows a "helper unreachable" error. It never contacts any remote server — only 127.0.0.1. To fully test: clone the repo, `npm install && npm start`, then open the options page.
+This extension works in two modes. (1) Default self-hosted mode: it talks only to a companion helper app running locally (open source: https://github.com/soulduse/retone). Without the helper, it degrades gracefully — the options page shows setup instructions. To fully test: `npm install -g retone && retone install`, then open the options page. (2) Optional "Retone Cloud" mode: if the user selects the Retone Cloud provider in options, rewriting is done by our hosted API (api.retone.dev) with a free trial of 5 rewrites/day — this is the easiest way to test the core UX without installing the helper: select "Retone Cloud (설치 불필요)" in options, then use the Re✦ button on x.com.
 ```
 
 ## 6. 제출 후
