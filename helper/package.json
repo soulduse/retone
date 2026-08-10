@@ -1,14 +1,34 @@
 {
-  "name": "retone-helper",
+  "name": "retone",
   "version": "0.1.0",
-  "description": "Retone 로컬 헬퍼 — 구독 CLI/API를 감싸는 리라이팅 서버",
+  "description": "Retone local helper — rewrite your X/Threads drafts with your own AI subscription (Claude/Codex/Antigravity CLI) or API keys. Zero-dependency companion server for the Retone Chrome extension.",
   "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/soulduse/retone.git",
+    "directory": "helper"
+  },
+  "homepage": "https://github.com/soulduse/retone#readme",
+  "bugs": "https://github.com/soulduse/retone/issues",
+  "keywords": [
+    "chrome-extension",
+    "rewriting",
+    "twitter",
+    "threads",
+    "claude",
+    "codex",
+    "local-first"
+  ],
   "engines": {
     "node": ">=18"
   },
   "bin": {
     "retone": "src/index.js"
   },
+  "files": [
+    "src"
+  ],
   "scripts": {
     "start": "node src/index.js serve",
     "test": "node --test"

@@ -112,6 +112,12 @@ switch (command) {
       process.exit(1);
     }
     const entry = fileURLToPath(import.meta.url);
+    // npx 임시 캐시 경로를 launchd에 등록하면 캐시 정리 시 자동 시작이 조용히 깨진다
+    if (entry.includes(`${path.sep}_npx${path.sep}`)) {
+      logError('npx 임시 실행으로는 자동 시작을 등록할 수 없습니다.');
+      logError('전역 설치 후 다시 실행하세요: npm install -g retone && retone install');
+      process.exit(1);
+    }
     const plistPath = path.join(os.homedir(), 'Library', 'LaunchAgents', 'com.retone.helper.plist');
     const logPath = path.join(CONFIG_DIR, 'helper.log');
     fs.mkdirSync(path.dirname(plistPath), { recursive: true });
