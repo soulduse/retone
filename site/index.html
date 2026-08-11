@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Retone — X·Threads 글, 작성창 안에서 톤만 바꾸다</title>
+  <meta name="description" content="X(트위터)·Threads 작성창 안에서 초안을 여러 톤으로 동시에 다듬는 Chrome 확장. 초안은 저장하지 않는 로컬 우선 설계." />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700;900&display=swap" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <a class="logo" href="./">Re<span class="star">✦</span>tone</a>
+      <nav>
+        <a href="#features">기능</a>
+        <a href="#pricing">가격</a>
+        <a href="#faq">FAQ</a>
+        <a href="https://github.com/soulduse/retone" target="_blank" rel="noreferrer">GitHub</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <h1>글은 그대로,<br /><em>톤만 다르게.</em></h1>
+      <p class="lead">
+        Retone은 X(트위터)·Threads 작성창 <b>안에서</b> 쓰던 초안을 여러 톤으로 동시에
+        다듬어 주는 Chrome 확장입니다. 복사해서 챗봇에 붙여넣고 되돌아오는 왕복,
+        이제 그만해도 됩니다.
+      </p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="https://github.com/soulduse/retone" id="install-cta">Chrome에 추가하기</a>
+        <a class="btn btn-ghost" href="https://github.com/soulduse/retone" target="_blank" rel="noreferrer">오픈소스 보기</a>
+      </div>
+      <p class="note">Chrome 웹스토어 심사 진행 중 — 지금은 GitHub에서 설치할 수 있어요.</p>
+
+      <div class="demo" aria-hidden="true">
+        <div class="demo-bar"><span></span><span></span><span></span></div>
+        <div class="demo-body">
+          <div class="demo-left">
+            <div class="who"><div class="avatar"></div><b>내 초안</b></div>
+            <p class="draft">오늘 사이드프로젝트 드디어 출시함. 3개월 걸렸는데 뿌듯하다. 다들 한번 써봐주면 좋겠다…</p>
+            <span class="rebtn">Re✦ 다듬기</span>
+          </div>
+          <div class="demo-right">
+            <div class="tone-card pick"><b>위트</b>3개월을 갈아 넣은 사이드프로젝트, 드디어 세상 밖으로. 제 잠과 맞바꾼 결과물이니 한 번만 눌러봐 주세요 🙏</div>
+            <div class="tone-card"><b>심플</b>3개월 만에 사이드프로젝트를 출시했습니다. 한번 써보시고 의견 주시면 감사하겠습니다.</div>
+            <div class="tone-card"><b>바이럴 훅</b>3개월 전의 나: "금방 만들지 뭐" — 오늘의 나: 드디어 출시. 어떤 서비스인지 궁금하다면 👇</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="features">
+      <div class="eyebrow">Why Retone</div>
+      <h2>복붙 왕복 없이, 쓰던 자리에서.</h2>
+      <div class="features">
+        <div class="feature">
+          <div class="glyph">Re</div>
+          <h3>작성창 안에서 바로</h3>
+          <p>X·Threads 입력창 옆의 Re✦ 버튼 하나로 여러 톤의 변형을 동시에 받아보고, 마음에 드는 것을 클릭 한 번으로 삽입합니다.</p>
+        </div>
+        <div class="feature">
+          <div class="glyph">✦</div>
+          <h3>7가지 톤 + 나만의 프리셋</h3>
+          <p>심플·정중·캐주얼·위트·바이럴 훅 등 기본 프리셋에 더해, 내 말투 지시문을 직접 만들어 쓸 수 있습니다.</p>
+        </div>
+        <div class="feature">
+          <div class="glyph">🔒</div>
+          <h3>초안은 저장하지 않아요</h3>
+          <p>로컬 우선 설계 — 무료 버전은 내 컴퓨터의 AI 구독/키로 동작하고, Cloud를 써도 초안과 결과는 서버에 저장되지 않습니다.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="pricing" id="pricing">
+      <div class="wrap-inner">
+        <div class="eyebrow">Pricing</div>
+        <h2>커피 한 잔보다 싸게, 매일 쓰는 글에.</h2>
+        <p class="section-lead">개발자라면 무료로 전부 쓸 수 있고, 터미널이 낯설다면 Cloud가 대신 다듬어 드립니다.</p>
+        <div class="plans">
+          <div class="plan">
+            <h3>셀프호스팅</h3>
+            <div class="price">무료</div>
+            <p class="sub">오픈소스 (MIT) · 내 AI 구독/API 키 사용</p>
+            <ul>
+              <li>기능 전부 제한 없이</li>
+              <li>Claude Code·Codex 등 내 구독 CLI 활용</li>
+              <li>설치: <code>npm install -g retone</code> 한 줄</li>
+              <li>초안이 내 컴퓨터 밖으로 안 나감*</li>
+            </ul>
+          </div>
+          <div class="plan cloud">
+            <span class="tag">터미널 불필요</span>
+            <h3>Retone Cloud</h3>
+            <div class="price">$3<small> / 월</small></div>
+            <p class="sub">연간 결제 시 $24/년 (33% 할인) · 무료 체험 하루 5회</p>
+            <ul>
+              <li>설치·설정 없이 확장만 켜면 끝</li>
+              <li>서버가 대신 다듬어 즉시 응답</li>
+              <li>초안·결과 무저장 원칙 동일</li>
+              <li>14일 무조건 환불</li>
+            </ul>
+          </div>
+        </div>
+        <p class="note" style="margin-top:18px; font-size:13px; color:var(--ink-faint)">* 선택한 AI 제공사로의 전송 제외 — 자세한 내용은 <a href="privacy.html" style="color:var(--teal-deep)">개인정보처리방침</a> 참고.</p>
+      </div>
+    </section>
+
+    <section class="privacy-band">
+      <div class="eyebrow">Privacy first</div>
+      <h2>글쓰기 도구는 당신의 글을 소유하면 안 됩니다.</h2>
+      <div class="privacy-cols">
+        <div class="pcol">
+          <h3>무저장</h3>
+          <p>초안과 생성 결과를 데이터베이스는 물론 서버 로그에도 남기지 않습니다. 남는 것은 익명 사용 횟수뿐입니다.</p>
+        </div>
+        <div class="pcol">
+          <h3>무추적</h3>
+          <p>애널리틱스도, 텔레메트리도, 핑거프린팅도 없습니다. 확장이 읽는 것은 당신이 다듬기를 누른 그 초안 하나입니다.</p>
+        </div>
+        <div class="pcol">
+          <h3>오픈소스</h3>
+          <p>확장과 헬퍼 전체가 MIT 라이선스로 공개돼 있어, 위 약속을 코드로 직접 검증할 수 있습니다.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="faq" id="faq">
+      <div class="eyebrow">FAQ</div>
+      <h2>자주 묻는 질문</h2>
+      <div class="list-head">
+        <details>
+          <summary>무료 버전과 Cloud의 차이가 뭔가요?</summary>
+          <p>기능은 같습니다. 무료(셀프호스팅)는 내 컴퓨터에 작은 헬퍼 프로그램을 설치하고 내 AI 구독(Claude Code·Codex 등)이나 API 키로 동작합니다. Cloud는 그 설치 과정 없이 Retone 서버가 대신 다듬어 주는 편의 옵션입니다.</p>
+        </details>
+        <details>
+          <summary>헬퍼 설치가 어렵지 않나요?</summary>
+          <p>Node.js가 있다면 터미널에 <code>npm install -g retone &amp;&amp; retone install</code> 한 줄이면 끝나고, 이후엔 컴퓨터를 켤 때 자동으로 실행됩니다. 터미널이 낯설다면 Cloud를 쓰시면 됩니다.</p>
+        </details>
+        <details>
+          <summary>제 글이 학습에 쓰이거나 저장되나요?</summary>
+          <p>아니요. Retone은 초안과 결과를 저장하지 않으며, 무료 버전에서는 글이 서버를 거치지도 않습니다. AI 제공사(Anthropic·OpenAI·Google)의 처리에는 각 사의 약관이 적용됩니다.</p>
+        </details>
+        <details>
+          <summary>환불 규정은 어떻게 되나요?</summary>
+          <p>Cloud 구독은 결제 후 14일 이내 요청 시 사유를 묻지 않고 전액 환불합니다. 자세한 내용은 <a href="terms.html#refund" style="color:var(--teal-deep)">환불정책</a>을 참고하세요.</p>
+        </details>
+        <details>
+          <summary>어떤 플랫폼을 지원하나요?</summary>
+          <p>현재 x.com(트위터)과 threads.com의 게시글·답글 작성창을 지원합니다. LinkedIn 등 다른 플랫폼은 로드맵에 있습니다.</p>
+        </details>
+      </div>
+    </section>
+
+    <footer>
+      <div class="foot-grid">
+        <div>
+          <a class="logo" href="./" style="font-size:20px">Re<span class="star">✦</span>tone</a>
+          <p style="margin-top:8px">글은 그대로, 톤만 다르게.</p>
+        </div>
+        <div class="foot-links">
+          <a href="terms.html">이용약관</a>
+          <a href="terms.html#refund">환불정책</a>
+          <a href="privacy.html">개인정보처리방침</a>
+          <a href="https://github.com/soulduse/retone" target="_blank" rel="noreferrer">GitHub</a>
+          <a href="mailto:corp@infinityapps.info">문의하기</a>
+        </div>
+      </div>
+      <div class="biz">
+        상호: 인피니티앱스 · 대표: [대표자] · 사업자등록번호: [사업자등록번호]<br />
+        이메일: corp@infinityapps.info<br />
+        © 2026 Retone. MIT Licensed Open Source.
+      </div>
+    </footer>
+  </div>
+</body>
+</html>

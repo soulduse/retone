@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>개인정보처리방침 — Retone</title>
+  <meta name="robots" content="noindex" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700;900&display=swap" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="./">← Retone 홈으로</a>
+    <h1>개인정보처리방침</h1>
+    <p class="updated">시행일: 2026-08-11 · 영문 원문: <a href="https://github.com/soulduse/retone/blob/master/PRIVACY.md">PRIVACY.md</a></p>
+
+    <p>Retone은 로컬 우선(local-first)으로 설계된 서비스입니다. 기본 모드에서 운영자는 이용자의 어떤 데이터도 수집·저장·전송하지 않으며, 분석 도구와 텔레메트리가 없습니다.</p>
+
+    <h2>1. 처리하는 정보와 흐름</h2>
+    <h3>초안 텍스트 — 셀프호스팅(기본)</h3>
+    <p>"다듬기"를 누르면 초안은 이용자 본인 컴퓨터의 헬퍼(127.0.0.1)로 전달되고, 헬퍼가 이용자가 선택한 AI(본인 구독 CLI 또는 본인 API 키)로만 전달합니다. 운영자의 서버를 거치지 않습니다. AI 제공사의 처리에는 각 사의 개인정보처리방침이 적용됩니다.</p>
+    <h3>초안 텍스트 — Retone Cloud (선택 시에만)</h3>
+    <p>Cloud provider를 직접 선택한 경우에만, 초안과 톤 프리셋이 HTTPS로 Retone 서버에 전송되어 AI 제공사로 1회 전달되고 결과가 반환됩니다. <b>초안과 결과는 메모리에서만 처리되며 데이터베이스와 로그 어디에도 저장되지 않습니다.</b> 서버에는 무료 체험·공정 이용 한도 관리를 위한 익명 사용 횟수(일자별 요청 수)만 남습니다.</p>
+    <h3>설정·프리셋</h3>
+    <p>브라우저의 chrome.storage.local에만 저장되며 동기화·업로드되지 않습니다.</p>
+    <h3>API 키</h3>
+    <p>이용자가 입력한 API 키는 헬퍼의 로컬 설정 파일(~/.config/retone/config.json, 권한 0600)에만 저장되며, 선택한 AI 제공사 인증 외의 목적으로 컴퓨터 밖으로 나가지 않습니다.</p>
+    <h3>라이선스 키·기기 ID (Cloud 전용)</h3>
+    <p>구독 확인을 위한 라이선스 키와 무작위 생성 기기 ID가 Cloud 요청에 포함됩니다. 이는 실명·계정과 연결되지 않으며, 이메일 주소는 결제 시 라이선스 키 전달 목적으로만 결제대행사를 통해 처리됩니다.</p>
+
+    <h2>2. 수집하지 않는 것</h2>
+    <ul>
+      <li>방문 기록, 이용자가 명시적으로 제출한 초안 외의 페이지 콘텐츠</li>
+      <li>이름·연락처 등 개인 식별 정보 (결제대행사가 처리하는 결제 정보 제외)</li>
+      <li>쿠키, 핑거프린팅, 사용 통계·행태 정보</li>
+      <li>Cloud 이용 시에도 초안·결과 본문 일체</li>
+    </ul>
+
+    <h2>3. 보유 기간</h2>
+    <table>
+      <tr><th>항목</th><th>보유 기간</th></tr>
+      <tr><td>초안·생성 결과</td><td>저장하지 않음 (처리 즉시 소멸)</td></tr>
+      <tr><td>익명 사용 횟수(기기 ID·라이선스 키 기준)</td><td>한도 관리 목적 달성 시까지</td></tr>
+      <tr><td>라이선스·결제 관련 기록</td><td>전자상거래법 등 관련 법령이 정한 기간</td></tr>
+    </table>
+
+    <h2>4. 제3자 제공·처리 위탁</h2>
+    <ul>
+      <li>AI 처리: 이용자가 선택한 제공사(Anthropic·OpenAI·Google)에 리라이팅 목적의 텍스트가 전달됩니다.</li>
+      <li>결제: 결제대행사(PG)가 결제 정보를 직접 처리하며, 운영자는 카드 정보를 보관하지 않습니다.</li>
+    </ul>
+
+    <h2>5. 이용자의 권리</h2>
+    <p>Cloud 라이선스와 연결된 기록의 열람·삭제를 요청할 수 있습니다. 초안·결과는 애초에 저장되지 않으므로 삭제 대상 자체가 존재하지 않습니다.</p>
+
+    <h2>6. 문의</h2>
+    <p>개인정보 관련 문의: 인피니티앱스 (<a href="mailto:corp@infinityapps.info">corp@infinityapps.info</a>)</p>
+  </div>
+</body>
+</html>
