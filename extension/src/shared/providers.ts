@@ -72,9 +72,10 @@ export const FALLBACK_PROVIDERS: ProviderInfo[] = [
     kind: 'api',
     available: true,
     models: [
-      { id: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash (빠름)' },
+      { id: 'gemini-3.5-flash-lite', label: 'Gemini 3.5 Flash-Lite (빠름)' },
+      { id: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
       { id: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro' },
     ],
-    defaultModel: 'gemini-2.5-flash',
+    defaultModel: 'gemini-3.5-flash-lite',
   },
 ];
