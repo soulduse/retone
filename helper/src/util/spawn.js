@@ -1,4 +1,29 @@
 import { spawn } from 'node:child_process';
+import os from 'node:os';
+import path from 'node:path';
+
+/**
+ * launchd(자동 시작)로 상주하면 셸 PATH가 상속되지 않아 기본 PATH(/usr/bin:/bin:…)만 남고,
+ * bare 커맨드(claude/codex)가 ENOENT → CLI_NOT_FOUND로 죽는다. 헬퍼를 띄운 node의 bin
+ * (nvm/fnm/volta — codex가 대개 여기 설치됨)과 CLI 공식 설치 경로를 PATH에 보강한다.
+ */
+const EXTRA_PATH_DIRS = [
+  path.dirname(process.execPath),
+  path.join(os.homedir(), '.local', 'bin'),
+  '/opt/homebrew/bin',
+  '/usr/local/bin',
+];
+
+function withAugmentedPath(env) {
+  const base = env ?? process.env;
+  // Windows는 키가 'Path' 등으로 올 수 있어 기존 키를 찾아 그 자리에 덮는다
+  const pathKey = Object.keys(base).find((k) => k.toUpperCase() === 'PATH') ?? 'PATH';
+  const parts = (base[pathKey] ?? '').split(path.delimiter).filter(Boolean);
+  for (const dir of EXTRA_PATH_DIRS) {
+    if (!parts.includes(dir)) parts.push(dir);
+  }
+  return { ...base, [pathKey]: parts.join(path.delimiter) };
+}
 
 /**
  * 타임아웃과 취소(AbortSignal)를 지원하는 spawn 래퍼.
@@ -9,7 +34,7 @@ import { spawn } from 'node:child_process';
  */
 export function spawnWithTimeout(cmd, args, { stdin, env, cwd, timeoutMs = 90_000, signal } = {}) {
   return new Promise((resolve, reject) => {
-    const child = spawn(cmd, args, { env, cwd, stdio: ['pipe', 'pipe', 'pipe'] });
+    const child = spawn(cmd, args, { env: withAugmentedPath(env), cwd, stdio: ['pipe', 'pipe', 'pipe'] });
 
     let stdout = '';
     let stderr = '';
