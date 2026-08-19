@@ -51,7 +51,7 @@ function keyPresence(config) {
 }
 
 async function handle(req, res, config) {
-  const { pathname } = new URL(req.url, 'http://127.0.0.1');
+  const { pathname, searchParams } = new URL(req.url, 'http://127.0.0.1');
 
   // DNS rebinding 방어 — 브라우저 경유 공격은 Host가 로컬이 아니다.
   if (!HOST_RE.test(req.headers.host ?? '')) {
@@ -82,7 +82,20 @@ async function handle(req, res, config) {
   }
 
   if (req.method === 'GET' && pathname === '/v1/models') {
-    return sendJson(res, 200, { providers: await detectProviders(config) });
+    const fresh = searchParams.get('fresh') === '1';
+    return sendJson(res, 200, { providers: await detectProviders(config, { fresh }) });
+  }
+
+  // 확장 "재연결" — launchd(KeepAlive) 관리 하에서만 의미 있는 원격 재시작.
+  // 수동 실행(npm start)은 죽으면 되살아나지 않으므로 거부한다. launchd가 띄운 프로세스는 부모가 pid 1.
+  if (req.method === 'POST' && pathname === '/v1/restart') {
+    if (process.ppid !== 1) {
+      throw errors.badRequest('자동 시작(launchd)으로 실행 중이 아니라 원격 재시작할 수 없습니다. 터미널에서 헬퍼를 재시작해 주세요.');
+    }
+    log('원격 재시작 요청 — 프로세스를 종료합니다 (launchd가 재기동)');
+    sendJson(res, 200, { ok: true, restarting: true });
+    setTimeout(() => process.exit(0), 150).unref();
+    return;
   }
 
   if (req.method === 'POST' && pathname === '/v1/rewrite') {

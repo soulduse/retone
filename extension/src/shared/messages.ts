@@ -15,7 +15,8 @@ export type BgRequest =
     }
   | { type: 'cancel'; requestId: string }
   | { type: 'helper-health' }
-  | { type: 'helper-models' }
+  | { type: 'helper-models'; fresh?: boolean }
+  | { type: 'helper-restart' }
   | { type: 'helper-save-keys'; keys: Partial<Record<'anthropic' | 'openai' | 'gemini', string>> }
   | { type: 'helper-pair' }
   | { type: 'cloud-quota' }

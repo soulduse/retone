@@ -4,9 +4,9 @@ import { PROVIDERS } from './models.js';
 const CACHE_TTL_MS = 60_000;
 const cliCache = new Map(); // command -> { at, result }
 
-async function detectCli(command) {
+async function detectCli(command, fresh = false) {
   const cached = cliCache.get(command);
-  if (cached && Date.now() - cached.at < CACHE_TTL_MS) return cached.result;
+  if (!fresh && cached && Date.now() - cached.at < CACHE_TTL_MS) return cached.result;
 
   let result;
   try {
@@ -21,8 +21,8 @@ async function detectCli(command) {
   return result;
 }
 
-/** GET /v1/models 응답용 provider 가용성 목록. */
-export async function detectProviders(config) {
+/** GET /v1/models 응답용 provider 가용성 목록. fresh=true면 CLI 탐지 캐시(60s)를 무시하고 재탐지(확장 "재연결"용). */
+export async function detectProviders(config, { fresh = false } = {}) {
   const entries = await Promise.all(
     Object.entries(PROVIDERS).map(async ([id, def]) => {
       const base = {
@@ -33,7 +33,7 @@ export async function detectProviders(config) {
         defaultModel: def.defaultModel,
       };
       if (def.kind === 'cli') {
-        return { ...base, ...(await detectCli(def.command)) };
+        return { ...base, ...(await detectCli(def.command, fresh)) };
       }
       const hasKey = Boolean(config.keys?.[def.keyName]);
       return { ...base, available: hasKey, ...(hasKey ? {} : { reason: 'NO_API_KEY' }) };

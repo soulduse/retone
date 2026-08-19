@@ -177,7 +177,10 @@ async function handle(msg: BgRequest): Promise<BgResponse> {
       return helperFetch('/health', { auth: false });
 
     case 'helper-models':
-      return helperFetch('/v1/models');
+      return helperFetch(msg.fresh ? '/v1/models?fresh=1' : '/v1/models');
+
+    case 'helper-restart':
+      return helperFetch('/v1/restart', { method: 'POST', timeoutMs: 5_000 });
 
     case 'helper-save-keys':
       return helperFetch('/v1/config/keys', { method: 'PUT', body: msg.keys });

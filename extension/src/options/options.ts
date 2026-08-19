@@ -82,12 +82,20 @@ function renderConn(state: ConnState, detail?: string): void {
     desc.className = 'conn-desc';
     desc.textContent = '이제 X/Threads 입력창의 Re✦ 버튼으로 바로 사용할 수 있어요.';
     wrap.appendChild(desc);
+    const actions = document.createElement('div');
+    actions.style.display = 'flex';
+    actions.style.gap = '8px';
     const again = document.createElement('button');
     again.className = 'btn';
-    again.style.alignSelf = 'flex-start';
     again.textContent = '다시 확인';
     again.onclick = () => connect();
-    wrap.appendChild(again);
+    const restart = document.createElement('button');
+    restart.className = 'btn';
+    restart.textContent = '재연결 (헬퍼 재시작)';
+    restart.title = 'AI 목록이 실제 설치 상태와 다르게 보일 때 헬퍼를 재시작하고 다시 탐지합니다.';
+    restart.onclick = () => reconnect();
+    actions.append(again, restart);
+    wrap.appendChild(actions);
   }
 
   if (state === 'off') {
@@ -142,12 +150,19 @@ function renderConn(state: ConnState, detail?: string): void {
     desc.className = 'conn-desc';
     desc.textContent = detail ?? '아래 고급 설정에서 토큰을 직접 입력하거나, 헬퍼를 재시작한 뒤 다시 시도해 주세요.';
     wrap.appendChild(desc);
+    const actions = document.createElement('div');
+    actions.style.display = 'flex';
+    actions.style.gap = '8px';
     const retry = document.createElement('button');
     retry.className = 'btn btn-primary';
-    retry.style.alignSelf = 'flex-start';
     retry.textContent = '다시 시도';
     retry.onclick = () => connect();
-    wrap.appendChild(retry);
+    const restart = document.createElement('button');
+    restart.className = 'btn';
+    restart.textContent = '재연결 (헬퍼 재시작)';
+    restart.onclick = () => reconnect();
+    actions.append(retry, restart);
+    wrap.appendChild(actions);
   }
 
   box.appendChild(wrap);
@@ -164,17 +179,38 @@ function scheduleOffPoll(): void {
   }, 3000);
 }
 
-/** health → (필요 시 자동 페어링) → models. 옵션 페이지 진입 시 자동 실행. */
-async function connect(): Promise<void> {
+/** health → (필요 시 자동 페어링) → models. 옵션 페이지 진입 시 자동 실행. fresh=true면 CLI 탐지 캐시 무시. */
+async function connect(fresh = false): Promise<void> {
   try {
-    await connectInner();
+    await connectInner(fresh);
   } catch (err) {
     setPill('err', '연결 실패');
     renderConn('fail', String((err as Error)?.message ?? err));
   }
 }
 
-async function connectInner(): Promise<void> {
+/**
+ * 재연결 — 헬퍼를 원격 재시작(launchd 관리형만 가능)하고, 살아날 때까지 기다린 뒤
+ * CLI 탐지 캐시를 무시하고 다시 연결한다. CLI가 설치돼 있는데도 목록에 사용 불가로
+ * 남는 stale 상태(예: PATH 변경, CLI 설치 직후)를 터미널 없이 복구하는 경로.
+ * 재시작이 거부돼도(수동 실행) fresh 재탐지만으로 대부분의 stale은 풀린다.
+ */
+async function reconnect(): Promise<void> {
+  renderConn('checking');
+  setPill('off', '재연결 중...');
+  const restart = await send({ type: 'helper-restart' });
+  if (restart.ok) {
+    // 헬퍼가 내려갔다 다시 뜰 때까지 폴링 (launchd 재기동, 최대 10초)
+    for (let i = 0; i < 20; i++) {
+      await new Promise((r) => setTimeout(r, 500));
+      const health = await send({ type: 'helper-health' });
+      if (health.ok) break;
+    }
+  }
+  await connect(true);
+}
+
+async function connectInner(fresh = false): Promise<void> {
   renderConn('checking');
 
   const health = await send({ type: 'helper-health' });
@@ -189,10 +225,10 @@ async function connectInner(): Promise<void> {
     return;
   }
 
-  let models = await send({ type: 'helper-models' });
+  let models = await send({ type: 'helper-models', fresh });
   if (!models.ok && models.code === 'UNAUTHORIZED') {
     const pair = await send({ type: 'helper-pair' }); // 토큰 자동 발급·저장
-    if (pair.ok) models = await send({ type: 'helper-models' });
+    if (pair.ok) models = await send({ type: 'helper-models', fresh });
   }
 
   if (!models.ok) {
