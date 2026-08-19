@@ -21,12 +21,16 @@ export const PROVIDERS = {
     label: 'Codex CLI (구독)',
     kind: 'cli',
     command: 'codex',
+    // 5.6 슬러그는 ~/.codex/models_cache.json의 slug 그대로 — 변형은 별도 모델(Terra=균형, Sol=최고 성능, Luna=빠름/저가)
     models: [
+      { id: 'gpt-5.6-terra', label: 'GPT-5.6 Terra (균형)' },
+      { id: 'gpt-5.6-sol', label: 'GPT-5.6 Sol (최고 성능)' },
+      { id: 'gpt-5.6-luna', label: 'GPT-5.6 Luna (빠름)' },
       { id: 'gpt-5.5', label: 'GPT-5.5' },
       { id: 'gpt-5.4', label: 'GPT-5.4' },
       { id: 'gpt-5.4-mini', label: 'GPT-5.4 mini (빠름)' },
     ],
-    defaultModel: 'gpt-5.5',
+    defaultModel: 'gpt-5.6-terra',
   },
   'antigravity-cli': {
     label: 'Antigravity CLI (Google 구독)',
