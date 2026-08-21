@@ -14,7 +14,8 @@ export const CLOUD_CHECKOUT_URL = '';
  * 로그인하면 서버가 결제 계정에 연결된 라이선스 키를 돌려줘 다기기/재설치에서도
  * 구독을 되찾는다. GCP 콘솔 리디렉션 URI = chrome.identity.getRedirectURL() 값 그대로.
  */
-export const CLOUD_GOOGLE_CLIENT_ID = '';
+export const CLOUD_GOOGLE_CLIENT_ID =
+  '319561625893-1gcdk7189jb9utd56r0cpeokb04ndcr5.apps.googleusercontent.com';
 export const CLOUD_TRIAL_PER_DAY = 5;
 
 export const CLOUD_PROVIDER: ProviderInfo = {
