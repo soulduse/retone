@@ -9,6 +9,12 @@ export const CLOUD_PROVIDER_ID = 'retone-cloud';
 export const CLOUD_BASE_URL = 'https://api.retone.dev/api/v1/retone';
 /** 결제 페이지 — 결제 연동 전까지 빈 값(빈 값이면 UI에서 구독 버튼을 숨긴다). */
 export const CLOUD_CHECKOUT_URL = '';
+/**
+ * Google 로그인용 OAuth client-id — 발급 전까지 빈 값(빈 값이면 로그인 버튼을 숨긴다).
+ * 로그인하면 서버가 결제 계정에 연결된 라이선스 키를 돌려줘 다기기/재설치에서도
+ * 구독을 되찾는다. GCP 콘솔 리디렉션 URI = chrome.identity.getRedirectURL() 값 그대로.
+ */
+export const CLOUD_GOOGLE_CLIENT_ID = '';
 export const CLOUD_TRIAL_PER_DAY = 5;
 
 export const CLOUD_PROVIDER: ProviderInfo = {

@@ -1,10 +1,10 @@
 import { loadState, saveSettings, saveState } from '../shared/storage.js';
 import { BUILTIN_PRESETS, type Preset, type BuiltinOverride } from '../shared/presets.js';
 import { FALLBACK_PROVIDERS } from '../shared/providers.js';
-import { withCloud } from '../shared/cloud.js';
+import { CLOUD_GOOGLE_CLIENT_ID, withCloud } from '../shared/cloud.js';
 import { errorMessage } from '../shared/errors.js';
 import { sendBg } from '../shared/rpc.js';
-import type { CloudQuota, ProviderInfo } from '../shared/messages.js';
+import type { CloudGoogleAuth, CloudQuota, ProviderInfo } from '../shared/messages.js';
 
 // 헬퍼 설치 안내 명령 — 기본은 npm 전역 설치 한 줄(npx 캐시 경로는 launchd 등록에 부적합).
 // 소스에서 직접 실행하는 개발자용 명령은 고급 설정의 경로 값으로 조립한다.
@@ -471,6 +471,25 @@ async function init(): Promise<void> {
     toast();
     await refreshQuota();
   };
+  // Google 로그인으로 키 되찾기 — client-id 미발급이면 버튼째 숨김(체크아웃 버튼과 동일 패턴)
+  if (CLOUD_GOOGLE_CLIENT_ID) {
+    $('#cloudGoogleSignIn').hidden = false;
+    $('#cloudGoogleHint').hidden = false;
+    $('#cloudGoogleSignIn').onclick = async () => {
+      cloudStatus.className = 'inline-status';
+      cloudStatus.textContent = 'Google 로그인 중…';
+      const res = await send({ type: 'cloud-google-signin' });
+      if (res.ok && 'data' in res) {
+        const auth = res.data as CloudGoogleAuth;
+        cloudKey.value = auth.licenseKey;
+        await refreshQuota();
+      } else if (!res.ok) {
+        cloudStatus.className = 'inline-status err';
+        // 서버가 상황별 안내 문구를 detail 로 준다("이 계정에 연결된 구독이 없어요" 등) — 우선 표시
+        cloudStatus.textContent = res.detail ?? errorMessage(res.code);
+      }
+    };
+  }
   void refreshQuota();
 
   const seg = $('#insertModeSeg');

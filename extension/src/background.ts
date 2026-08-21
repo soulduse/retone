@@ -1,6 +1,6 @@
 import { loadState, saveSettings } from './shared/storage.js';
-import { CLOUD_BASE_URL, CLOUD_PROVIDER_ID } from './shared/cloud.js';
-import type { BgRequest, BgResponse, ErrorCode } from './shared/messages.js';
+import { CLOUD_BASE_URL, CLOUD_GOOGLE_CLIENT_ID, CLOUD_PROVIDER_ID } from './shared/cloud.js';
+import type { BgRequest, BgResponse, CloudGoogleAuth, ErrorCode } from './shared/messages.js';
 
 const controllers = new Map<string, AbortController>();
 
@@ -63,6 +63,63 @@ async function cloudFetch(
 
 interface HelperError {
   error?: { code?: string; message?: string };
+}
+
+// ── Google 로그인 → 라이선스 되찾기 ────────
+// getAuthToken은 access token만 주고 idToken이 없다(feedback 확정) — launchWebAuthFlow의
+// implicit id_token 플로우를 쓴다. 서버는 idToken만 검증하면 되고 refresh가 필요 없어
+// (키 수령 후에는 키 자체가 자격) 이 한 번의 리다이렉트로 끝난다.
+async function googleSignIn(): Promise<
+  { ok: true; data: CloudGoogleAuth } | { ok: false; code: ErrorCode; detail?: string }
+> {
+  if (!CLOUD_GOOGLE_CLIENT_ID) return { ok: false, code: 'PROVIDER_ERROR', detail: '로그인 미개통' };
+
+  const nonce = crypto.randomUUID();
+  const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
+  authUrl.searchParams.set('client_id', CLOUD_GOOGLE_CLIENT_ID);
+  authUrl.searchParams.set('response_type', 'id_token');
+  authUrl.searchParams.set('redirect_uri', chrome.identity.getRedirectURL());
+  authUrl.searchParams.set('scope', 'openid email');
+  authUrl.searchParams.set('nonce', nonce);
+  authUrl.searchParams.set('prompt', 'select_account');
+
+  let redirected: string | undefined;
+  try {
+    redirected = await chrome.identity.launchWebAuthFlow({
+      url: authUrl.toString(),
+      interactive: true,
+    });
+  } catch {
+    return { ok: false, code: 'CANCELLED' };
+  }
+  const idToken = redirected && new URLSearchParams(new URL(redirected).hash.slice(1)).get('id_token');
+  if (!idToken || !idTokenNonceMatches(idToken, nonce)) {
+    return { ok: false, code: 'CANCELLED' };
+  }
+
+  const { settings } = await loadState();
+  const result = await cloudFetch('/auth/google', {
+    method: 'POST',
+    timeoutMs: 15_000,
+    // 이미 입력해 둔 키가 있으면 함께 보내 이 계정에 명시 바인딩한다(최초 1회 연결)
+    body: { idToken, licenseKey: settings.cloudLicenseKey || undefined },
+  });
+  if (!result.ok) return result;
+
+  const auth = result.data as CloudGoogleAuth;
+  await saveSettings({ cloudLicenseKey: auth.licenseKey });
+  return { ok: true, data: auth };
+}
+
+/** implicit 플로우의 재생 방지 — 돌려받은 id_token의 nonce가 내가 보낸 값인지. */
+function idTokenNonceMatches(idToken: string, nonce: string): boolean {
+  try {
+    const payload = idToken.split('.')[1];
+    const json = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
+    return json.nonce === nonce;
+  } catch {
+    return false;
+  }
 }
 
 // 무인증 페어링 — 커스텀 헤더는 확장(host_permissions)만 전송 가능
@@ -192,6 +249,9 @@ async function handle(msg: BgRequest): Promise<BgResponse> {
 
     case 'cloud-quota':
       return cloudFetch('/quota', { timeoutMs: 8_000 });
+
+    case 'cloud-google-signin':
+      return googleSignIn();
 
     case 'open-options':
       await chrome.runtime.openOptionsPage();

@@ -19,7 +19,7 @@
       "128": "icons/icon128.png"
     }
   },
-  "permissions": ["storage", "clipboardWrite"],
+  "permissions": ["storage", "clipboardWrite", "identity"],
   "host_permissions": ["http://127.0.0.1/*", "http://localhost/*", "https://api.retone.dev/*"],
   "background": { "service_worker": "background.js", "type": "module" },
   "content_scripts": [

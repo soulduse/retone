@@ -20,6 +20,7 @@ export type BgRequest =
   | { type: 'helper-save-keys'; keys: Partial<Record<'anthropic' | 'openai' | 'gemini', string>> }
   | { type: 'helper-pair' }
   | { type: 'cloud-quota' }
+  | { type: 'cloud-google-signin' }
   | { type: 'open-options' };
 
 export type ErrorCode =
@@ -52,6 +53,14 @@ export interface CloudQuota {
   remaining: number;
   limit: number;
   resetAt?: string;
+}
+
+/** POST /auth/google 응답 — 로그인한 계정에 연결된 라이선스. */
+export interface CloudGoogleAuth {
+  licenseKey: string;
+  plan: string;
+  expiresAt: string;
+  email?: string | null;
 }
 
 export interface ProviderInfo {

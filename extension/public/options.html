@@ -73,8 +73,12 @@
         <input type="password" id="cloudLicenseKey" placeholder="구독 후 이메일로 받은 키 — 비우면 무료 체험" spellcheck="false" /></label>
       <div class="actions">
         <button id="saveCloudKey" class="btn">키 저장</button>
+        <button id="cloudGoogleSignIn" class="btn" hidden>Google 계정으로 연결</button>
         <span id="cloudStatus" class="inline-status"></span>
       </div>
+      <p class="hint" id="cloudGoogleHint" hidden>
+        결제한 Google 계정으로 로그인하면 키 입력 없이 구독을 불러와요. 다른 기기에서도 같은 계정으로 로그인하면 돼요.
+      </p>
     </section>
 
     <section class="card">
