@@ -2,6 +2,16 @@
 
 개발자 계정 등록이 끝난 상태를 전제로 한다. 소요 시간: 폼 입력 ~20분 + 심사 대기(보통 1~3일).
 
+## ⛔ 제출 전 차단 항목 (이거 안 하고 올리면 반려되거나 사용자가 설치를 못 한다)
+
+| # | 항목 | 확인 방법 |
+|---|------|-----------|
+| 1 | **확장을 실제로 로드해 결제 오버레이를 눌러본다** | `chrome://extensions` → 개발자 모드 → `extension/dist` 로드 → 설정에서 "구독하기" → 결제창이 **빈 화면이 아니라 실제로 뜨는지**. iframe 실렌더는 정적 검증으로 확인 불가 |
+| 2 | **버전을 올린다** | `extension/public/manifest.json` 의 `version` (같은 버전 재업로드 불가) |
+| 3 | **스크린샷을 현재 UI 로 다시 찍는다** | `docs/store/screenshot-1280x800.png` 는 7월 캡처 — 그 뒤 UI·가격·잔여량 표시가 바뀌었다. 스토어 메타데이터 불일치는 반려 사유 |
+| 4 | **GitHub 릴리스를 만든다** | 사이트 설치 안내가 `/releases` 를 가리키는데 **현재 릴리스가 0개**다. 심사와 무관하지만 그대로 두면 사용자가 설치를 못 한다 |
+| 5 | **PRIVACY.md 에 결제·로그인 축을 반영** | 현재 방침은 헬퍼 경로 위주다. Google 로그인(이메일·sub 저장)과 결제 처리자(Lemon Squeezy)를 명시해야 데이터 신고와 어긋나지 않는다 |
+
 ## 0. 패키징
 
 ```bash
@@ -60,17 +70,27 @@ Rewrites the user's X/Threads draft text into user-selected tones and inserts th
 | `clipboardWrite` | Implements the "Copy" button and the clipboard fallback used when direct insertion into the compose box is not possible. |
 | `host_permissions (127.0.0.1, localhost)` | Communicates with the Retone helper application that runs on the user's own machine at 127.0.0.1:7386. Used for the default self-hosted mode. |
 | `host_permissions (api.retone.dev)` | Communicates with the optional "Retone Cloud" hosted rewriting service, only when the user explicitly selects the Retone Cloud provider. Drafts are processed in memory and never stored; see the privacy policy. |
+| `identity` | Used only for an optional "Sign in with Google" button that lets a paying user restore their Retone Cloud subscription on a new device. We request only the `openid email` scopes via `launchWebAuthFlow`, and use the returned ID token solely to look up the license tied to that account. No contacts, profile data, or Google services are accessed. |
 | 콘텐츠 스크립트 (x.com 등) | Adds a rewrite button next to the compose box and reads only the draft the user explicitly submits for rewriting. |
 
 **원격 코드(Remote code) 사용 여부**: **아니요** — 모든 JS는 패키지에 번들되어 있음 (esbuild, 외부 스크립트 로드 없음).
+
+> ⚠️ **결제 오버레이는 원격 코드가 아니다.** 확장 페이지(`checkout.html`)가 결제사 페이지를
+> `<iframe>`으로 띄우지만, 이는 문서 임베드이지 우리 확장 컨텍스트에서 외부 스크립트를
+> 실행하는 것이 아니다. manifest 의 `content_security_policy.extension_pages` 에
+> `frame-src https://pay.admob.pro` 만 허용했고 `script-src 'self'` 는 그대로다.
+> 심사에서 물으면 이 점(스크립트 실행 아님 / 결제는 Lemon Squeezy 가 처리 / 카드정보는
+> 확장이 만지지 않음)을 그대로 답한다.
 
 **데이터 사용(Data usage) 체크리스트**: "User activity" 등 수집 항목 **전부 체크 해제**. Cloud 사용 시에도 저장·프로파일링 없이 일시 처리(웹사이트 콘텐츠=사용자가 명시 제출한 초안만 전송)이므로 "Website content" 항목만 상황에 따라 체크 검토 — 체크 시 용도는 "App functionality". 하단의 인증 문구 3개(데이터를 판매하지 않음 등)에 동의 체크.
 
 **개인정보처리방침 URL**:
 
 ```
-https://github.com/soulduse/retone/blob/master/PRIVACY.md
+https://retone.dev/privacy.html
 ```
+
+(저장소 사본: `https://github.com/soulduse/retone/blob/master/PRIVACY.md` — 둘의 내용이 어긋나지 않게 함께 갱신할 것)
 
 ## 4. 배포 설정 (Distribution)
 
@@ -83,7 +103,28 @@ https://github.com/soulduse/retone/blob/master/PRIVACY.md
 심사자는 로컬 헬퍼 없이 테스트하므로, 대시보드의 검토자 노트에 아래를 남긴다:
 
 ```
-This extension works in two modes. (1) Default self-hosted mode: it talks only to a companion helper app running locally (open source: https://github.com/soulduse/retone). Without the helper, it degrades gracefully — the options page shows setup instructions. To fully test: `npm install -g retone && retone install`, then open the options page. (2) Optional "Retone Cloud" mode: if the user selects the Retone Cloud provider in options, rewriting is done by our hosted API (api.retone.dev) with a free trial of 5 rewrites/day — this is the easiest way to test the core UX without installing the helper: select "Retone Cloud (설치 불필요)" in options, then use the Re✦ button on x.com.
+This extension rewrites the user's social-media draft into several tones. It works in two modes.
+
+(1) Retone Cloud (easiest way to review — no setup required)
+    Open the options page, choose "Retone Cloud (설치 불필요)" as the provider, then go to
+    x.com, type a draft in the compose box and click the "Re✦ 다듬기" button next to it.
+    Every install gets 5 free rewrites per day with no account and no payment, so the full
+    core UX is testable out of the box.
+
+(2) Self-hosted (default)
+    The extension talks only to a companion helper app running on the user's own machine
+    (open source: https://github.com/soulduse/retone). Without the helper it degrades
+    gracefully — the options page shows step-by-step setup instructions.
+    To test: `npm install -g retone && retone install`, then open the options page.
+
+Notes on permissions and payments:
+- "identity" is used only for an optional "Sign in with Google" button that restores an
+  existing paid subscription on another device (scopes: openid email). It is never required
+  to use the extension.
+- The paid subscription is optional. Checkout is opened in an extension page that embeds our
+  payment provider (Lemon Squeezy) in an iframe; the extension never handles card data, and
+  no remote scripts are executed in the extension context (script-src is 'self').
+- Drafts are processed in memory and are never stored: https://retone.dev/privacy.html
 ```
 
 ## 6. 제출 후
