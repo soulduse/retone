@@ -543,7 +543,14 @@ async function init(): Promise<void> {
   }
   syncPicker();
 
-  $('#cloudSubscribe').onclick = () => void send({ type: 'open-checkout', planId: selectedPlan });
+  $('#cloudSubscribe').onclick = async () => {
+    // 🪤 실패를 삼키면 "눌러도 반응 없음" 이 된다 — 결과를 반드시 화면에 보여준다
+    const res = await send({ type: 'open-checkout', planId: selectedPlan });
+    if (!res.ok) {
+      cloudStatus.className = 'inline-status err';
+      cloudStatus.textContent = res.detail ?? errorMessage(res.code);
+    }
+  };
   $('#cloudRefresh').onclick = async () => {
     cloudStatus.className = 'inline-status';
     cloudStatus.textContent = '확인 중…';

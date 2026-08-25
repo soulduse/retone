@@ -309,9 +309,27 @@ async function handle(msg: BgRequest): Promise<BgResponse> {
       // 결제창은 확장 페이지에서 연다 — x.com 의 CSP(frame-src)가 결제 도메인을
       // 허용하지 않아 콘텐츠 스크립트에 iframe 을 꽂으면 브라우저가 차단한다.
       const plan = CLOUD_PLANS.find((p) => p.id === msg.planId) ?? CLOUD_PLANS[0];
-      await chrome.tabs.create({
-        url: chrome.runtime.getURL(`checkout.html?plan=${plan.id}`),
-      });
+      const url = chrome.runtime.getURL(`checkout.html?plan=${plan.id}`);
+      /**
+       * 🪤 `chrome.tabs.create` 는 확장 자신의 페이지를 열 때도 환경에 따라 실패한다
+       *    (tabs 권한 미선언 시 MV3 서비스 워커에서 throw) — 그러면 사용자에겐
+       *    "버튼을 눌러도 아무 반응 없음" 으로만 보인다. 권한이 필요 없는
+       *    `chrome.windows.create` 로 폴백해 어떤 경우에도 결제창이 열리게 한다.
+       */
+      try {
+        await chrome.tabs.create({ url });
+      } catch (err) {
+        try {
+          await chrome.windows.create({ url, type: 'popup', width: 720, height: 860 });
+        } catch (err2) {
+          // 둘 다 실패하면 침묵하지 말고 원인을 사용자에게 돌려준다
+          return {
+            ok: false,
+            code: 'UNKNOWN',
+            detail: `결제창을 열지 못했어요: ${String(err2 ?? err)}`,
+          };
+        }
+      }
       return { ok: true, data: null };
     }
 
