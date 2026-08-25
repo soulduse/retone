@@ -543,12 +543,32 @@ async function init(): Promise<void> {
   }
   syncPicker();
 
+  /**
+   * 결제창 열기 — **옵션 페이지에서 tabs API 를 직접 호출한다.**
+   *
+   * 이 확장의 옵션은 `options_ui.open_in_tab: true` 라 실제 탭에서 열리는 확장 페이지다.
+   * 공식 문서: "The Tabs API can be used by the service worker and extension pages" 이고
+   * tabs.create 는 별도 권한이 필요 없다("This example doesn't require any permissions").
+   *
+   * 🪤 종전엔 background 로 메시지를 보내 대신 열게 했다가 **아무 반응 없이 실패**했다.
+   *    메시지 왕복은 서비스워커 수명·응답 채널·핸들러 버전 불일치 같은 실패 지점을
+   *    통째로 끌어들이는데, 여기선 그 왕복 자체가 불필요하다. 직접 호출이 정답.
+   * 🪤 실패를 삼키지 말 것 — 에러는 카드 상단(항상 보이는 자리)에 띄운다.
+   *    (예전엔 접힌 <details> 안의 요소에 써서 사용자가 볼 수 없었다)
+   */
+  const subscribeError = $('#cloudSubscribeError');
   $('#cloudSubscribe').onclick = async () => {
-    // 🪤 실패를 삼키면 "눌러도 반응 없음" 이 된다 — 결과를 반드시 화면에 보여준다
-    const res = await send({ type: 'open-checkout', planId: selectedPlan });
-    if (!res.ok) {
-      cloudStatus.className = 'inline-status err';
-      cloudStatus.textContent = res.detail ?? errorMessage(res.code);
+    subscribeError.textContent = '';
+    const url = chrome.runtime.getURL(`checkout.html?plan=${selectedPlan}`);
+    try {
+      await chrome.tabs.create({ url });
+    } catch (err) {
+      try {
+        // 탭 생성이 막히는 환경(임베드 옵션 등)을 위한 문서상 폴백
+        window.open(url, '_blank');
+      } catch {
+        subscribeError.textContent = `결제창을 열지 못했어요: ${String(err)}`;
+      }
     }
   };
   $('#cloudRefresh').onclick = async () => {
