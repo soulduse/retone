@@ -1,7 +1,7 @@
 import { loadState, saveSettings, saveState } from '../shared/storage.js';
 import { BUILTIN_PRESETS, type Preset, type BuiltinOverride } from '../shared/presets.js';
 import { FALLBACK_PROVIDERS } from '../shared/providers.js';
-import { CLOUD_GOOGLE_CLIENT_ID, withCloud } from '../shared/cloud.js';
+import { CLOUD_GOOGLE_CLIENT_ID, CLOUD_PLANS, withCloud } from '../shared/cloud.js';
 import { errorMessage } from '../shared/errors.js';
 import { sendBg } from '../shared/rpc.js';
 import type { CloudGoogleAuth, CloudQuota, ProviderInfo } from '../shared/messages.js';
@@ -453,6 +453,7 @@ async function init(): Promise<void> {
   const cloudStatus = $('#cloudStatus');
   const quotaBox = $('#quotaBox');
   const upgradeRow = $('#cloudUpgradeRow');
+  const manageRow = $('#cloudManageRow');
 
   /** 잔여량을 막대와 문장으로 그린다 — 유료는 서버가 알려준 축(일/월)을 그대로 따른다. */
   const renderQuota = (q: CloudQuota) => {
@@ -476,8 +477,17 @@ async function init(): Promise<void> {
           ? `${scopeLabel} 한도를 모두 썼어요. ${q.scope === 'month' ? '다음 달' : '내일'} 다시 채워져요.`
           : '오늘 체험 횟수를 모두 썼어요. 구독하면 바로 이어서 쓸 수 있어요.';
 
-    // 무료 체험 중일 때만 구독 버튼을 보여준다 — 이미 결제한 사람에게 결제를 권하지 않는다
-    upgradeRow.hidden = q.plan === 'paid';
+    // 이미 결제한 사람에게 결제를 권하지 않는다 — 대신 상태 관리 수단을 보여준다
+    const paid = q.plan === 'paid';
+    upgradeRow.hidden = paid;
+    manageRow.hidden = !paid;
+    // 구독자에게 "무료 체험"·"이미 구독 중이신가요?"는 어색하다 — 문구도 상태를 따른다
+    $('#cloudTitleSub').textContent = paid
+      ? '구독 중 — 하루 100회 · 월 3,000회'
+      : '설치 없이 바로 — 무료 체험 하루 5회';
+    $('#cloudManualSummary').textContent = paid
+      ? '다른 기기에서 쓰거나 키를 다시 넣으려면'
+      : '이미 구독 중이신가요?';
   };
 
   const refreshQuota = async () => {
@@ -489,18 +499,56 @@ async function init(): Promise<void> {
     } else if (!res.ok && res.code !== 'CLOUD_UNREACHABLE' && res.code !== 'TIMEOUT') {
       quotaBox.hidden = true;
       upgradeRow.hidden = false; // 키가 잘못됐어도 구독 경로는 열어둔다
+      manageRow.hidden = true;
       cloudStatus.className = 'inline-status err';
       cloudStatus.textContent = errorMessage(res.code, res.detail);
     } else {
       // 서버 미개통/오프라인 — 조용히 넘어가되 구독 경로는 남겨둔다
       quotaBox.hidden = true;
       upgradeRow.hidden = false;
+      manageRow.hidden = true;
       cloudStatus.className = 'inline-status';
       cloudStatus.textContent = '';
     }
   };
 
-  $('#cloudSubscribe').onclick = () => void send({ type: 'open-checkout' });
+  // 플랜을 카드 안에서 먼저 고르게 한다 — 결제창을 열기 전에 무엇을 사는지 보이도록.
+  let selectedPlan = CLOUD_PLANS[0].id;
+  const picker = $('#planPicker');
+  const syncPicker = () => {
+    for (const el of picker.querySelectorAll('button')) {
+      el.classList.toggle('active', el.dataset.plan === selectedPlan);
+    }
+  };
+  for (const plan of CLOUD_PLANS) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'plan-opt';
+    btn.dataset.plan = plan.id;
+
+    const label = document.createElement('b');
+    label.textContent = plan.label;
+    const price = document.createElement('span');
+    price.className = 'plan-opt-price';
+    price.textContent = plan.price;
+    const note = document.createElement('small');
+    note.textContent = plan.note;
+    btn.append(label, price, note);
+
+    btn.onclick = () => {
+      selectedPlan = plan.id;
+      syncPicker();
+    };
+    picker.appendChild(btn);
+  }
+  syncPicker();
+
+  $('#cloudSubscribe').onclick = () => void send({ type: 'open-checkout', planId: selectedPlan });
+  $('#cloudRefresh').onclick = async () => {
+    cloudStatus.className = 'inline-status';
+    cloudStatus.textContent = '확인 중…';
+    await refreshQuota();
+  };
   $('#saveCloudKey').onclick = async () => {
     await saveSettings({ cloudLicenseKey: cloudKey.value.trim() });
     toast();

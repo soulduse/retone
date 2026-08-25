@@ -318,6 +318,21 @@ async function handle(msg: BgRequest): Promise<BgResponse> {
     case 'open-options':
       await chrome.runtime.openOptionsPage();
       return { ok: true, data: null };
+
+    default: {
+      /**
+       * 🪤 모르는 메시지 타입이 오면 **아무 일도 일어나지 않는 것처럼 보인다** — 확장을
+       *    업데이트한 뒤 chrome://extensions 에서 새로고침하지 않으면 예전 서비스 워커가
+       *    새 메시지(open-checkout 등)를 모른 채 undefined 를 돌려주고, 사용자에겐
+       *    "버튼을 눌러도 반응 없음" 으로만 보인다. 원인을 말해주는 응답을 돌려준다.
+       */
+      const unknown = (msg as { type?: string }).type;
+      return {
+        ok: false,
+        code: 'UNKNOWN',
+        detail: `확장이 업데이트됐어요. chrome://extensions 에서 Retone을 새로고침해 주세요. (미지원 요청: ${unknown})`,
+      };
+    }
   }
 }
 

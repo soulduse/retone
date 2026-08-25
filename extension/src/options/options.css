@@ -153,6 +153,11 @@ select { cursor: pointer; appearance: none;
 .btn-ghost:hover { color: var(--accent); }
 
 .actions { display: flex; align-items: center; gap: 12px; margin-top: 2px; }
+
+/* 🪤 hidden 속성은 `display:none` 을 **기본값으로만** 준다 — display 를 지정한 클래스가
+   붙으면 조용히 무력화된다(.actions 의 display:flex 가 hidden 을 이겨, 구독한 사용자에게
+   "구독하기" 버튼이 계속 보이던 실버그). 클래스마다 대응하지 말고 전역으로 못박는다. */
+[hidden] { display: none !important; }
 .inline-status { font-size: 12.5px; color: var(--muted); }
 .inline-status.ok { color: var(--ok); }
 .inline-status.err { color: var(--bad); }
@@ -367,3 +372,46 @@ details.advanced > div { margin-top: 12px; }
 .cloud-manual > summary:hover { color: var(--accent); }
 
 .cloud-manual-body { margin-top: 12px; }
+
+/* ── 구독 플랜 선택 ── */
+
+.upgrade-lead {
+  margin: 14px 0 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.plan-picker {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.plan-opt {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 10px;
+  text-align: left;
+  background: var(--field);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.plan-opt:hover { border-color: var(--accent); }
+
+.plan-opt.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.plan-opt b { font-size: 12px; color: var(--muted); font-weight: 600; }
+.plan-opt.active b { color: var(--accent); }
+.plan-opt-price { font-size: 17px; font-weight: 800; letter-spacing: -0.01em; }
+.plan-opt small { font-size: 11px; color: var(--muted); line-height: 1.4; }

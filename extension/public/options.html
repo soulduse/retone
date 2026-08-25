@@ -63,7 +63,7 @@
 
     <section class="card" id="cloudCard">
       <div class="card-title"><span class="tick"></span>Retone Cloud
-        <span class="title-sub">설치 없이 바로 — 무료 체험 하루 5회</span>
+        <span class="title-sub" id="cloudTitleSub">설치 없이 바로 — 무료 체험 하루 5회</span>
       </div>
       <p class="hint" style="margin-top:0">
         내 컴퓨터에 아무것도 설치하지 않고, Retone 서버가 대신 다듬어 드려요.
@@ -79,13 +79,23 @@
         <p class="quota-reset" id="quotaReset"></p>
       </div>
 
-      <div class="actions" id="cloudUpgradeRow" hidden>
-        <button id="cloudSubscribe" class="btn btn-primary">구독하기 · 월 $4.99부터</button>
-        <span class="hint" style="margin:0">14일 이내 전액 환불</span>
+      <div id="cloudUpgradeRow" hidden>
+        <p class="upgrade-lead">계속 쓰려면 구독하세요 — 하루 100회 · 월 3,000회</p>
+        <div class="plan-picker" id="planPicker"></div>
+        <div class="actions">
+          <button id="cloudSubscribe" class="btn btn-primary">구독하기</button>
+          <span class="hint" style="margin:0">14일 이내 전액 환불 · 언제든 해지</span>
+        </div>
+      </div>
+
+      <!-- 구독 중인 사용자용 — 결제를 권하는 대신 관리 수단을 준다 -->
+      <div class="actions" id="cloudManageRow" hidden>
+        <button id="cloudRefresh" class="btn">구독 상태 새로고침</button>
+        <span class="hint" style="margin:0">해지·영수증은 결제 확인 메일에서</span>
       </div>
 
       <details class="cloud-manual">
-        <summary>이미 구독 중이신가요?</summary>
+        <summary id="cloudManualSummary">이미 구독 중이신가요?</summary>
         <div class="cloud-manual-body">
           <p class="hint" style="margin-top:0">
             결제한 Google 계정으로 연결하면 키 입력 없이 구독을 불러와요. 다른 기기에서도 같은 계정으로 연결하면 됩니다.
