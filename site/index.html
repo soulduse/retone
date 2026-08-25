@@ -34,7 +34,7 @@
         <a class="btn btn-primary" href="https://github.com/soulduse/retone" id="install-cta">Chrome에 추가하기</a>
         <a class="btn btn-ghost" href="https://github.com/soulduse/retone" target="_blank" rel="noreferrer">오픈소스 보기</a>
       </div>
-      <p class="note">Chrome 웹스토어 심사 진행 중 — 지금은 GitHub에서 설치할 수 있어요.</p>
+      <p class="note">설치하면 하루 5회 무료로 바로 써볼 수 있어요 · Chrome 웹스토어 심사 진행 중 — 지금은 GitHub에서 설치할 수 있습니다.</p>
 
       <div class="demo" aria-hidden="true">
         <div class="demo-bar"><span></span><span></span><span></span></div>
@@ -70,7 +70,7 @@
         <div class="feature">
           <div class="glyph">🔒</div>
           <h3>초안은 저장하지 않아요</h3>
-          <p>로컬 우선 설계 — 무료 버전은 내 컴퓨터의 AI 구독/키로 동작하고, Cloud를 써도 초안과 결과는 서버에 저장되지 않습니다.</p>
+          <p>어느 쪽을 쓰든 초안과 결과는 저장되지 않습니다. Cloud는 다듬는 그 순간에만 처리하고 바로 버리며, 셀프호스팅은 글이 아예 내 컴퓨터를 벗어나지 않습니다.</p>
         </div>
       </div>
     </section>
@@ -78,31 +78,31 @@
     <section class="pricing" id="pricing">
       <div class="wrap-inner">
         <div class="eyebrow">Pricing</div>
-        <h2>커피 한 잔보다 싸게, 매일 쓰는 글에.</h2>
-        <p class="section-lead">개발자라면 무료로 전부 쓸 수 있고, 터미널이 낯설다면 Cloud가 대신 다듬어 드립니다.</p>
+        <h2>커피 한 잔값으로, 매일 쓰는 글에.</h2>
+        <p class="section-lead">설치 없이 바로 쓰는 Cloud를 권합니다. 직접 서버를 돌리고 싶다면 소스도 열려 있습니다.</p>
         <div class="plans">
+          <div class="plan cloud">
+            <span class="tag">추천</span>
+            <h3>Retone Cloud</h3>
+            <div class="price">$4.99<small> / 월</small></div>
+            <p class="sub">연간 $39.99 (33% 절약) · 먼저 하루 5회 무료로 써보세요</p>
+            <ul>
+              <li>설치 없이 확장만 켜면 끝</li>
+              <li>여러 톤을 한 번에, 보통 5초 안팎</li>
+              <li>하루 100회 · 월 3,000회</li>
+              <li>초안·결과를 저장하지 않음</li>
+              <li>14일 이내 전액 환불</li>
+            </ul>
+          </div>
           <div class="plan">
             <h3>셀프호스팅</h3>
             <div class="price">무료</div>
-            <p class="sub">오픈소스 (MIT) · 내 AI 구독/API 키 사용</p>
+            <p class="sub">오픈소스 (MIT) · 내 AI 구독이나 API 키로 직접 운영</p>
             <ul>
               <li>기능 전부 제한 없이</li>
               <li>Claude Code·Codex 등 내 구독 CLI 활용</li>
-              <li>설치: <code>npm install -g retone</code> 한 줄</li>
+              <li>터미널 설치와 관리는 직접</li>
               <li>초안이 내 컴퓨터 밖으로 안 나감*</li>
-            </ul>
-          </div>
-          <div class="plan cloud">
-            <span class="tag">터미널 불필요</span>
-            <h3>Retone Cloud</h3>
-            <div class="price">$4.99<small> / 월</small></div>
-            <p class="sub">연간 결제 시 $39.99/년 (33% 할인) · 무료 체험 하루 5회</p>
-            <ul>
-              <li>설치·설정 없이 확장만 켜면 끝</li>
-              <li>서버가 대신 다듬어 즉시 응답</li>
-              <li>하루 100회 · 월 3,000회 다듬기</li>
-              <li>초안·결과 무저장 원칙 동일</li>
-              <li>14일 무조건 환불</li>
             </ul>
           </div>
         </div>
@@ -140,19 +140,27 @@
       <div class="list-head">
         <details>
           <summary>무료 버전과 Cloud의 차이가 뭔가요?</summary>
-          <p>기능은 같습니다. 무료(셀프호스팅)는 내 컴퓨터에 작은 헬퍼 프로그램을 설치하고 내 AI 구독(Claude Code·Codex 등)이나 API 키로 동작합니다. Cloud는 그 설치 과정 없이 Retone 서버가 대신 다듬어 주는 편의 옵션입니다.</p>
+          <p>다듬는 기능은 같고, 누가 AI를 돌리느냐가 다릅니다. Cloud는 Retone 서버가 처리하므로 확장을 켜는 즉시 쓸 수 있고 하루 100회·월 3,000회까지 이용합니다. 셀프호스팅은 내 컴퓨터에 헬퍼를 설치하고 내 AI 구독이나 API 키로 직접 돌리는 방식이라, 설치와 관리를 스스로 하는 대신 사용량 제한이 없습니다.</p>
         </details>
         <details>
           <summary>헬퍼 설치가 어렵지 않나요?</summary>
-          <p>Node.js가 있다면 터미널에 <code>npm install -g retone &amp;&amp; retone install</code> 한 줄이면 끝나고, 이후엔 컴퓨터를 켤 때 자동으로 실행됩니다. 터미널이 낯설다면 Cloud를 쓰시면 됩니다.</p>
+          <p>Node.js가 있다면 터미널에 <code>npm install -g retone &amp;&amp; retone install</code> 한 줄이면 끝나고, 이후엔 컴퓨터를 켤 때 자동으로 실행됩니다. 설치 자체를 건너뛰고 싶다면 Cloud를 쓰시면 됩니다.</p>
         </details>
         <details>
           <summary>제 글이 학습에 쓰이거나 저장되나요?</summary>
-          <p>아니요. Retone은 초안과 결과를 저장하지 않으며, 무료 버전에서는 글이 서버를 거치지도 않습니다. AI 제공사(Anthropic·OpenAI·Google)의 처리에는 각 사의 약관이 적용됩니다.</p>
+          <p>아니요. Retone은 초안과 결과를 데이터베이스에도 로그에도 남기지 않고, 학습에 쓰지 않습니다. 셀프호스팅에서는 글이 Retone 서버를 거치지도 않습니다. AI 제공사(Anthropic·OpenAI·Google)의 처리에는 각 사의 약관이 적용됩니다.</p>
         </details>
         <details>
           <summary>환불 규정은 어떻게 되나요?</summary>
-          <p>Cloud 구독은 결제 후 14일 이내 요청 시 사유를 묻지 않고 전액 환불합니다. 자세한 내용은 <a href="terms.html#refund" style="color:var(--teal-deep)">환불정책</a>을 참고하세요.</p>
+          <p>Cloud 구독은 결제 후 14일 이내 요청 시 사유를 묻지 않고 전액 환불합니다. 해지도 결제 확인 메일의 링크에서 언제든 직접 할 수 있고, 해지해도 남은 기간까지는 그대로 이용됩니다. 자세한 내용은 <a href="terms.html#refund" style="color:var(--teal-deep)">환불정책</a>을 참고하세요.</p>
+        </details>
+        <details>
+          <summary>하루 100회·월 3,000회면 충분한가요?</summary>
+          <p>하루에 글 몇 개를 쓰고 톤을 여러 개 받아봐도 넉넉한 양입니다. 한 번 다듬을 때 고른 톤이 3개든 5개든 1회로 계산합니다. 남은 횟수는 확장 설정 화면에서 언제든 확인할 수 있고, 한도에 닿아도 다음 날(또는 다음 달)에 다시 채워집니다.</p>
+        </details>
+        <details>
+          <summary>결제하면 바로 쓸 수 있나요?</summary>
+          <p>네. 결제 후 확장이 자동으로 구독을 인식합니다. Google 계정으로 연결해 두면 다른 기기에서도 로그인만으로 그대로 이어서 쓸 수 있고, 연결하지 않았다면 결제에 사용한 이메일로 보내드린 라이선스 키를 설정에 넣으면 됩니다.</p>
         </details>
         <details>
           <summary>어떤 플랫폼을 지원하나요?</summary>
