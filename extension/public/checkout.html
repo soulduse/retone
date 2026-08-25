@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <title>Retone Cloud 구독</title>
+  <link rel="stylesheet" href="options.css" />
+  <link rel="stylesheet" href="checkout.css" />
+</head>
+<body class="checkout-body">
+  <main class="checkout">
+    <header class="checkout-head">
+      <div class="brand">Re<span class="star">✦</span>tone <span class="brand-sub">Cloud</span></div>
+      <p class="checkout-lead" id="lead">플랜을 고르면 결제창이 바로 열려요.</p>
+    </header>
+
+    <section id="planStep" class="plan-step">
+      <div class="plans" id="plans"></div>
+      <p class="checkout-note">
+        결제 시 국가별 세금(VAT 등)이 별도 부과됩니다 · 14일 이내 전액 환불 ·
+        결제는 Lemon Squeezy가 처리하며 카드 정보는 Retone에 저장되지 않습니다.
+      </p>
+      <p class="checkout-note" id="identityNote" hidden></p>
+    </section>
+
+    <section id="frameStep" hidden>
+      <div class="frame-bar">
+        <button id="backToPlans" class="btn">← 플랜 다시 고르기</button>
+        <span id="framePlan" class="frame-plan"></span>
+      </div>
+      <div class="frame-wrap">
+        <div class="frame-loading" id="frameLoading">결제창을 불러오는 중…</div>
+        <iframe id="checkoutFrame" title="결제" allow="payment"></iframe>
+      </div>
+    </section>
+
+    <section id="doneStep" class="done-step" hidden>
+      <div class="done-mark">✓</div>
+      <h1 id="doneTitle">결제가 완료됐어요</h1>
+      <p id="doneMsg">구독을 확인하는 중이에요…</p>
+      <div class="actions">
+        <button id="doneClose" class="btn btn-primary" hidden>시작하기</button>
+        <button id="doneOptions" class="btn" hidden>설정 열기</button>
+      </div>
+    </section>
+  </main>
+  <script src="checkout.js"></script>
+</body>
+</html>

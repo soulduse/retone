@@ -451,21 +451,56 @@ async function init(): Promise<void> {
   const cloudKey = input('#cloudLicenseKey');
   cloudKey.value = state.settings.cloudLicenseKey ?? '';
   const cloudStatus = $('#cloudStatus');
+  const quotaBox = $('#quotaBox');
+  const upgradeRow = $('#cloudUpgradeRow');
+
+  /** 잔여량을 막대와 문장으로 그린다 — 유료는 서버가 알려준 축(일/월)을 그대로 따른다. */
+  const renderQuota = (q: CloudQuota) => {
+    const scopeLabel = q.scope === 'month' ? '이번 달' : '오늘';
+    quotaBox.hidden = false;
+    const planEl = $('#quotaPlan');
+    planEl.textContent = q.plan === 'paid' ? '구독 중' : '무료 체험';
+    planEl.className = `quota-plan${q.plan === 'paid' ? ' paid' : ''}`;
+    $('#quotaCount').textContent =
+      `${scopeLabel} ${q.used.toLocaleString()} / ${q.limit.toLocaleString()}회`;
+
+    const ratio = q.limit > 0 ? Math.min(1, q.used / q.limit) : 0;
+    const fill = $('#quotaFill');
+    fill.style.width = `${Math.round(ratio * 100)}%`;
+    fill.className = `quota-fill${ratio >= 1 ? ' full' : ratio >= 0.8 ? ' warn' : ''}`;
+
+    $('#quotaReset').textContent =
+      q.remaining > 0
+        ? `${q.remaining.toLocaleString()}회 남았어요.`
+        : q.plan === 'paid'
+          ? `${scopeLabel} 한도를 모두 썼어요. ${q.scope === 'month' ? '다음 달' : '내일'} 다시 채워져요.`
+          : '오늘 체험 횟수를 모두 썼어요. 구독하면 바로 이어서 쓸 수 있어요.';
+
+    // 무료 체험 중일 때만 구독 버튼을 보여준다 — 이미 결제한 사람에게 결제를 권하지 않는다
+    upgradeRow.hidden = q.plan === 'paid';
+  };
+
   const refreshQuota = async () => {
     const res = await send({ type: 'cloud-quota' });
     if (res.ok && 'data' in res) {
-      const q = res.data as CloudQuota;
-      cloudStatus.className = 'inline-status ok';
-      cloudStatus.textContent =
-        q.plan === 'paid' ? `구독 중 · 오늘 ${q.remaining}회 남음` : `무료 체험 · 오늘 ${q.remaining}/${q.limit}회 남음`;
+      renderQuota(res.data as CloudQuota);
+      cloudStatus.className = 'inline-status';
+      cloudStatus.textContent = '';
     } else if (!res.ok && res.code !== 'CLOUD_UNREACHABLE' && res.code !== 'TIMEOUT') {
+      quotaBox.hidden = true;
+      upgradeRow.hidden = false; // 키가 잘못됐어도 구독 경로는 열어둔다
       cloudStatus.className = 'inline-status err';
       cloudStatus.textContent = errorMessage(res.code, res.detail);
     } else {
+      // 서버 미개통/오프라인 — 조용히 넘어가되 구독 경로는 남겨둔다
+      quotaBox.hidden = true;
+      upgradeRow.hidden = false;
       cloudStatus.className = 'inline-status';
-      cloudStatus.textContent = ''; // 서버 미개통/오프라인 — 조용히 넘어간다
+      cloudStatus.textContent = '';
     }
   };
+
+  $('#cloudSubscribe').onclick = () => void send({ type: 'open-checkout' });
   $('#saveCloudKey').onclick = async () => {
     await saveSettings({ cloudLicenseKey: cloudKey.value.trim() });
     toast();
@@ -474,7 +509,6 @@ async function init(): Promise<void> {
   // Google 로그인으로 키 되찾기 — client-id 미발급이면 버튼째 숨김(체크아웃 버튼과 동일 패턴)
   if (CLOUD_GOOGLE_CLIENT_ID) {
     $('#cloudGoogleSignIn').hidden = false;
-    $('#cloudGoogleHint').hidden = false;
     $('#cloudGoogleSignIn').onclick = async () => {
       cloudStatus.className = 'inline-status';
       cloudStatus.textContent = 'Google 로그인 중…';

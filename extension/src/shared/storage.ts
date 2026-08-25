@@ -13,6 +13,12 @@ export interface Settings {
   cloudLicenseKey: string;
   /** 체험 쿼터 식별용 디바이스 ID — 최초 Cloud 사용 시 생성 */
   cloudDeviceId: string;
+  /**
+   * Google 로그인으로 확인된 계정 — 체크아웃 프리필과 결제-계정 즉시 바인딩에 쓴다.
+   * ⚠️ 자격증명이 아니라 표시·프리필용 사본이다. 권한의 정본은 어디까지나 서버의 라이선스.
+   */
+  cloudEmail: string;
+  cloudGoogleSub: string;
 }
 
 export interface StoredState {
@@ -32,6 +38,8 @@ export const DEFAULT_SETTINGS: Settings = {
   installPath: '',
   cloudLicenseKey: '',
   cloudDeviceId: '',
+  cloudEmail: '',
+  cloudGoogleSub: '',
 };
 
 const DEFAULTS: StoredState = {

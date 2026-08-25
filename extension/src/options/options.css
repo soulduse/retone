@@ -291,3 +291,79 @@ details.advanced summary::before { content: "▸"; transition: transform 0.15s; 
 details.advanced[open] summary::before { transform: rotate(90deg); }
 details.advanced summary::-webkit-details-marker { display: none; }
 details.advanced > div { margin-top: 12px; }
+
+/* ── Retone Cloud 잔여량 ── */
+
+.quota-box {
+  margin: 14px 0 16px;
+  padding: 14px 16px;
+  background: var(--field);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.quota-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.quota-plan {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.quota-plan.paid { color: var(--ok); }
+
+.quota-count {
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+.quota-bar {
+  height: 6px;
+  background: var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.quota-fill {
+  height: 100%;
+  width: 0;
+  background: var(--accent);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.quota-fill.warn { background: #f59e0b; }
+.quota-fill.full { background: var(--bad); }
+
+.quota-reset {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.cloud-manual {
+  margin-top: 16px;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+
+.cloud-manual > summary {
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--muted);
+  list-style: none;
+}
+
+.cloud-manual > summary::-webkit-details-marker { display: none; }
+.cloud-manual > summary::before { content: '▸ '; }
+.cloud-manual[open] > summary::before { content: '▾ '; }
+.cloud-manual > summary:hover { color: var(--accent); }
+
+.cloud-manual-body { margin-top: 12px; }

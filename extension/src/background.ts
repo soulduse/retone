@@ -1,6 +1,19 @@
 import { loadState, saveSettings } from './shared/storage.js';
-import { CLOUD_BASE_URL, CLOUD_GOOGLE_CLIENT_ID, CLOUD_PROVIDER_ID } from './shared/cloud.js';
-import type { BgRequest, BgResponse, CloudGoogleAuth, ErrorCode } from './shared/messages.js';
+import {
+  CLOUD_BASE_URL,
+  CLOUD_GOOGLE_CLIENT_ID,
+  CLOUD_PLANS,
+  CLOUD_PROVIDER_ID,
+} from './shared/cloud.js';
+import type {
+  BgRequest,
+  BgResponse,
+  CloudGoogleAuth,
+  CloudIdentity,
+  CloudQuota,
+  ErrorCode,
+  Variant,
+} from './shared/messages.js';
 
 const controllers = new Map<string, AbortController>();
 
@@ -52,10 +65,14 @@ async function cloudFetch(
   if (!res.ok) {
     // Cloud 서버는 평평한 {message, status, code} 포맷 — 헬퍼의 {error:{...}}와 둘 다 수용
     const body = data as HelperError & { code?: string; message?: string };
+    // 서버가 준 code 를 먼저 존중한다 — 402 를 뭉뚱그리면 체험 소진(TRIAL_EXHAUSTED)과
+    // 유료 한도 초과(QUOTA_EXCEEDED)가 합쳐져 이미 결제한 사용자에게 구독 버튼이 뜬다.
+    const serverCode = body.error?.code ?? body.code;
     const code: ErrorCode =
       res.status === 401 ? 'LICENSE_INVALID'
+      : serverCode ? (serverCode as ErrorCode)
       : res.status === 402 || res.status === 429 ? 'QUOTA_EXCEEDED'
-      : ((body.error?.code ?? body.code ?? 'PROVIDER_ERROR') as ErrorCode);
+      : 'PROVIDER_ERROR';
     return { ok: false, code, detail: body.error?.message ?? body.message };
   }
   return { ok: true, data };
@@ -107,19 +124,34 @@ async function googleSignIn(): Promise<
   if (!result.ok) return result;
 
   const auth = result.data as CloudGoogleAuth;
-  await saveSettings({ cloudLicenseKey: auth.licenseKey });
+  // 이메일/sub 를 함께 남긴다 — 다음 체크아웃에서 프리필+즉시 바인딩에 쓰인다.
+  // sub 는 서버가 돌려주지 않으므로 방금 검증한 idToken 에서 직접 읽는다.
+  await saveSettings({
+    cloudLicenseKey: auth.licenseKey,
+    cloudEmail: auth.email ?? readIdTokenClaim(idToken, 'email') ?? '',
+    cloudGoogleSub: readIdTokenClaim(idToken, 'sub') ?? '',
+  });
   return { ok: true, data: auth };
+}
+
+/**
+ * id_token 페이로드에서 클레임 하나를 읽는다.
+ * ⚠️ 서명을 검증하지 않는다 — 표시·프리필 용도로만 쓸 것. 권한 판단은 서버(google_verify)의 몫이다.
+ */
+function readIdTokenClaim(idToken: string, claim: string): string | undefined {
+  try {
+    const payload = idToken.split('.')[1];
+    const json = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
+    const value = json[claim];
+    return typeof value === 'string' ? value : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 /** implicit 플로우의 재생 방지 — 돌려받은 id_token의 nonce가 내가 보낸 값인지. */
 function idTokenNonceMatches(idToken: string, nonce: string): boolean {
-  try {
-    const payload = idToken.split('.')[1];
-    const json = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
-    return json.nonce === nonce;
-  } catch {
-    return false;
-  }
+  return readIdTokenClaim(idToken, 'nonce') === nonce;
 }
 
 // 무인증 페어링 — 커스텀 헤더는 확장(host_permissions)만 전송 가능
@@ -217,7 +249,14 @@ async function handle(msg: BgRequest): Promise<BgResponse> {
               },
             });
         if (!result.ok) return result;
-        const data = result.data as { variants: never[]; elapsedMs: number; provider: string; model: string };
+        // 서버 응답을 그대로 전달한다 — Cloud 경로는 quota 가 함께 실려 온다.
+        const data = result.data as {
+          variants: Variant[];
+          elapsedMs: number;
+          provider: string;
+          model: string;
+          quota?: CloudQuota;
+        };
         return { ok: true, ...data };
       } finally {
         controllers.delete(msg.requestId);
@@ -252,6 +291,29 @@ async function handle(msg: BgRequest): Promise<BgResponse> {
 
     case 'cloud-google-signin':
       return googleSignIn();
+
+    case 'cloud-identity': {
+      const { settings } = await loadState();
+      return {
+        ok: true,
+        data: {
+          email: settings.cloudEmail || null,
+          googleSub: settings.cloudGoogleSub || null,
+          deviceId: await cloudDeviceId(),
+          hasLicense: Boolean(settings.cloudLicenseKey),
+        } satisfies CloudIdentity,
+      };
+    }
+
+    case 'open-checkout': {
+      // 결제창은 확장 페이지에서 연다 — x.com 의 CSP(frame-src)가 결제 도메인을
+      // 허용하지 않아 콘텐츠 스크립트에 iframe 을 꽂으면 브라우저가 차단한다.
+      const plan = CLOUD_PLANS.find((p) => p.id === msg.planId) ?? CLOUD_PLANS[0];
+      await chrome.tabs.create({
+        url: chrome.runtime.getURL(`checkout.html?plan=${plan.id}`),
+      });
+      return { ok: true, data: null };
+    }
 
     case 'open-options':
       await chrome.runtime.openOptionsPage();

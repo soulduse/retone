@@ -82,6 +82,18 @@ export const SHADOW_CSS = `
 
 .rt-loading-hint { font-size: 12px; opacity: 0.75; line-height: 1.5; padding: 0 2px 8px; }
 
+.rt-quota {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  margin-top: 10px; padding-top: 10px;
+  border-top: 1px solid rgba(128,128,128,0.18);
+  font-size: 11px; opacity: 0.7;
+}
+.rt-quota-link {
+  padding: 0; border: 0; background: none;
+  color: #1d9bf0; font-size: 11px; font-weight: 700; cursor: pointer;
+}
+.rt-quota-link:hover { text-decoration: underline; }
+
 .rt-error { padding: 10px 2px; line-height: 1.5; }
 .rt-error .rt-primary { margin-top: 10px; }
 .rt-error .rt-cancel { display: block; width: 100%; margin: 8px 0 0; padding: 8px 0; text-align: center; }

@@ -4,7 +4,7 @@ import { FALLBACK_PROVIDERS } from '../shared/providers.js';
 import { withCloud } from '../shared/cloud.js';
 import { errorMessage } from '../shared/errors.js';
 import { sendBg } from '../shared/rpc.js';
-import type { BgResponse, ErrorCode, ProviderInfo, Variant } from '../shared/messages.js';
+import type { BgResponse, CloudQuota, ErrorCode, ProviderInfo, Variant } from '../shared/messages.js';
 import type { SiteAdapter } from './sites/types.js';
 import { insertText, copyText } from './insert.js';
 import { showToast } from './toast.js';
@@ -30,6 +30,8 @@ export class RetonePanel {
   private presets: Preset[] = [];
   private selected = new Set<string>();
   private variants: Variant[] = [];
+  /** Cloud 경로에서만 채워진다 — 결과 하단의 잔여량 표시용. */
+  private quota: CloudQuota | null = null;
   private requestId: string | null = null;
   private elapsedTimer: number | undefined;
   private insertMode: 'insert' | 'copy' = 'insert';
@@ -287,11 +289,22 @@ export class RetonePanel {
     box.className = 'rt-error';
     box.textContent = `⚠️ ${errorMessage(code, detail)}`;
 
+    // 체험 소진은 결제로 바로 이어주는 게 정답 — 설정 화면을 한 단계 거치게 하지 않는다.
+    // ⚠️ 판정은 서버가 준 **코드**로만 한다. 예전엔 detail 문구에 '이번 달' 이 들어있는지로
+    //    갈랐는데, 서버 카피 한 줄만 바꿔도 이미 결제한 사용자에게 구독 버튼이 뜬다.
+    if (code === 'TRIAL_EXHAUSTED') {
+      const subscribe = document.createElement('button');
+      subscribe.className = 'rt-primary';
+      subscribe.textContent = '구독하고 계속하기';
+      subscribe.onclick = () => send({ type: 'open-checkout' });
+      box.appendChild(subscribe);
+    }
+
     // 설정에서 해결해야 하는 에러는 행동 버튼을 우선 노출
-    const fixInOptions = (['HELPER_UNREACHABLE', 'UNAUTHORIZED', 'CLI_NOT_FOUND', 'NO_API_KEY', 'LICENSE_INVALID', 'QUOTA_EXCEEDED'] as ErrorCode[]).includes(code);
+    const fixInOptions = (['HELPER_UNREACHABLE', 'UNAUTHORIZED', 'CLI_NOT_FOUND', 'NO_API_KEY', 'LICENSE_INVALID', 'QUOTA_EXCEEDED', 'TRIAL_EXHAUSTED'] as ErrorCode[]).includes(code);
     if (fixInOptions) {
       const open = document.createElement('button');
-      open.className = 'rt-primary';
+      open.className = 'rt-cancel';
       open.textContent = '설정 열기';
       open.onclick = () => send({ type: 'open-options' });
       box.appendChild(open);
@@ -315,7 +328,35 @@ export class RetonePanel {
     again.textContent = '프리셋 다시 고르기';
     again.onclick = () => this.renderIdle();
     this.body.appendChild(again);
+
+    const quotaLine = this.buildQuotaLine();
+    if (quotaLine) this.body.appendChild(quotaLine);
     this.position();
+  }
+
+  /**
+   * 결과 하단의 잔여량 한 줄. 체험이 얼마 안 남았을 때만 구독 링크를 함께 건다 —
+   * 매번 결제를 권하면 도구가 아니라 광고가 된다.
+   */
+  private buildQuotaLine(): HTMLElement | null {
+    const q = this.quota;
+    if (!q) return null;
+
+    const line = document.createElement('div');
+    line.className = 'rt-quota';
+    const scope = q.scope === 'month' ? '이번 달' : '오늘';
+    const text = document.createElement('span');
+    text.textContent = `${scope} ${q.used.toLocaleString()}/${q.limit.toLocaleString()}회 사용`;
+    line.appendChild(text);
+
+    if (q.plan === 'trial' && q.remaining <= 2) {
+      const link = document.createElement('button');
+      link.className = 'rt-quota-link';
+      link.textContent = q.remaining > 0 ? `${q.remaining}회 남음 · 구독하기` : '구독하기';
+      link.onclick = () => send({ type: 'open-checkout' });
+      line.appendChild(link);
+    }
+    return line;
   }
 
   private buildCard(variant: Variant): HTMLElement {
@@ -439,6 +480,7 @@ export class RetonePanel {
       return;
     }
     this.variants = res.variants;
+    this.quota = res.quota ?? null;
     this.renderResults();
   }
 
