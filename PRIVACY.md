@@ -11,6 +11,8 @@ Retone is a local-first browser extension. By default, **the developer does not 
 - **Settings and presets**: stored locally in your browser via `chrome.storage.local`. Never synced or uploaded.
 - **API keys**: stored only in the helper's local config file (`~/.config/retone/config.json`, permission 0600). They are never stored in the browser and never leave your machine except to authenticate with the provider you configured.
 - **License key & device ID (Retone Cloud only)**: a license key you enter and a randomly generated device ID are stored locally and sent with Cloud requests to identify your subscription/trial quota. They are not linked to your identity; your email address is used only to deliver the license key at purchase and is handled by the payment provider.
+- **Google account (Retone Cloud, optional)**: if you use the optional "Sign in with Google" button to restore a subscription, we request only the `openid email` scopes. The returned ID token is sent once to our server, which verifies it and looks up the license tied to that account. Your **email address and Google account identifier are stored locally** in the extension so the checkout form can be pre-filled and the subscription can be matched to your purchase. We do not access contacts, profile details, or any other Google service, and we never receive your Google password.
+- **Payment information**: we never see or store your card details. Checkout is handled entirely by our payment provider, **Lemon Squeezy, LLC**, who acts as the Merchant of Record. The extension only embeds their checkout page; billing data is processed under their privacy policy.
 
 ## What is NOT collected
 
@@ -25,6 +27,7 @@ Retone is a local-first browser extension. By default, **the developer does not 
 - `clipboardWrite` — the "복사" (Copy) button and the clipboard fallback when direct insertion fails
 - `host_permissions` for `127.0.0.1` / `localhost` — communicate with the local helper
 - `host_permissions` for `api.retone.dev` — communicate with the optional Retone Cloud tier (only used when you select the Retone Cloud provider)
+- `identity` — used **only** for the optional "Sign in with Google" button that restores an existing Retone Cloud subscription on another device. It is never required to use the extension.
 
 ## Contact
 
