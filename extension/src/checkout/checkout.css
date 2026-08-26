@@ -127,9 +127,13 @@
   color: var(--muted);
 }
 
+/*
+ * 🪤 고정 높이 + overflow:hidden 은 결제 폼을 잘라먹는다 — 결제창은 결제수단·주소·세금
+ *    입력이 붙으면 계속 길어지는데, 잘린 아래쪽에 결제 버튼이 있으면 결제 자체가 막힌다.
+ *    뷰포트에 맞춰 늘리고, 넘치면 프레임이 스스로 스크롤하게 둔다.
+ */
 .frame-wrap {
   position: relative;
-  min-height: 620px;
   border: 1px solid var(--line);
   border-radius: 14px;
   overflow: hidden;
@@ -139,7 +143,8 @@
 .frame-wrap iframe {
   display: block;
   width: 100%;
-  height: 720px;
+  /* 헤더·플랜 바를 뺀 나머지를 결제창에 준다(하한을 둬 좁은 창에서도 폼이 보이게) */
+  height: max(680px, calc(100vh - 190px));
   border: 0;
 }
 
