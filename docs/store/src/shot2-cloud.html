@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ko">
+<head><meta charset="utf-8" />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    width: 1280px; height: 800px;
+    background: radial-gradient(1200px 600px at 20% -10%, #0f2740 0%, #070d14 60%);
+    color: #e8eef5; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    padding: 56px 64px; position: relative;
+  }
+  .logo { font-size: 30px; font-weight: 800; letter-spacing: -0.02em; color: #7cc4f5; }
+  .logo .s { color: #ffd479; }
+  .tag { margin-top: 10px; font-size: 15px; color: #9fb3c8; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 44px; }
+  .head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; font-size: 15px; font-weight: 700; color: #6fd7c0; }
+  .num { width: 24px; height: 24px; border-radius: 50%; background: #16496b; color: #9fe0ff;
+         display: flex; align-items: center; justify-content: center; font-size: 13px; }
+  .card { background: #101922; border: 1px solid #1e2c39; border-radius: 14px; padding: 22px 24px; }
+  .kicker { font-size: 12px; font-weight: 700; color: #7f93a8; letter-spacing: 0.08em; }
+  .price { margin: 12px 0 4px; font-size: 42px; font-weight: 800; letter-spacing: -0.02em; }
+  .price small { font-size: 16px; font-weight: 500; color: #8ea3b8; }
+  .sub { font-size: 13px; color: #8ea3b8; }
+  ul { list-style: none; margin-top: 18px; }
+  li { padding: 8px 0 8px 24px; position: relative; font-size: 14.5px; color: #cfdcea; }
+  li::before { content: "✦"; position: absolute; left: 0; color: #ffd479; font-size: 12px; }
+  .quota { margin-top: 22px; background: #0c141c; border: 1px solid #1e2c39; border-radius: 12px; padding: 16px 18px; }
+  .qrow { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 10px; }
+  .qplan { font-weight: 700; color: #6fd7c0; }
+  .bar { height: 6px; background: #1c2836; border-radius: 99px; overflow: hidden; }
+  .fill { height: 100%; width: 5%; background: #4aa8e8; border-radius: 99px; }
+  .qnote { margin-top: 9px; font-size: 12px; color: #7f93a8; }
+  .free { margin-top: 26px; font-size: 13.5px; color: #9fb3c8; }
+  .free b { color: #e8eef5; }
+  .foot { position: absolute; left: 64px; bottom: 34px; font-size: 12.5px; color: #6c7f93; }
+  .strip { margin-top: 38px; }
+  .flow { display: grid; grid-template-columns: 1fr auto 1fr 1fr; gap: 14px; align-items: center; }
+  .fcard { background: #101922; border: 1px solid #1e2c39; border-radius: 12px; padding: 14px 16px; min-height: 104px; }
+  .flabel { font-size: 11.5px; font-weight: 700; color: #7f93a8; margin-bottom: 8px; }
+  .ftext { font-size: 13px; line-height: 1.55; color: #cfdcea; }
+  .rebtn { display: inline-block; margin-top: 10px; padding: 3px 10px; border-radius: 99px;
+           background: rgba(74,168,232,0.16); border: 1px solid rgba(74,168,232,0.5);
+           color: #7cc4f5; font-size: 11.5px; font-weight: 700; }
+  .arrow { color: #45586c; font-size: 20px; }
+</style></head>
+<body>
+  <div class="logo">Re<span class="s">✦</span>tone <span style="font-weight:600;color:#8ea3b8">Cloud</span></div>
+  <div class="tag">설치도, 터미널도 없이 — 확장만 켜면 바로 다듬어 드려요.</div>
+
+  <div class="cols">
+    <div>
+      <div class="head"><span class="num">1</span>무료로 먼저 써보기</div>
+      <div class="card">
+        <div class="kicker">무료 체험</div>
+        <div class="price">하루 5회</div>
+        <div class="sub">계정도, 카드도 필요 없어요</div>
+        <div class="quota">
+          <div class="qrow"><span class="qplan">무료 체험</span><span>오늘 1 / 5회</span></div>
+          <div class="bar"><div class="fill" style="width:20%"></div></div>
+          <div class="qnote">4회 남았어요.</div>
+        </div>
+        <div class="free">설치 직후부터 <b>바로</b> 사용할 수 있어요.</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="head"><span class="num">2</span>계속 쓰려면 구독</div>
+      <div class="card">
+        <div class="kicker">RETONE CLOUD</div>
+        <div class="price">$4.99<small> / 월</small></div>
+        <div class="sub">연간 $39.99 (33% 절약) · 국가별 세금 별도</div>
+        <ul>
+          <li>하루 100회 · 월 3,000회</li>
+          <li>여러 톤을 한 번에, 보통 5초 안팎</li>
+          <li>초안·결과를 저장하지 않음</li>
+          <li>14일 이내 전액 환불 · 언제든 해지</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="strip">
+    <div class="head" style="margin-bottom:16px"><span class="num">3</span>X · Threads 작성창 안에서 바로</div>
+    <div class="flow">
+      <div class="fcard">
+        <div class="flabel">내 초안</div>
+        <div class="ftext">오늘 사이드프로젝트 드디어 출시함 3개월 걸렸는데 뿌듯하다</div>
+        <span class="rebtn">Re✦ 다듬기</span>
+      </div>
+      <div class="arrow">→</div>
+      <div class="fcard">
+        <div class="flabel" style="color:#7cc4f5">심플 다듬기</div>
+        <div class="ftext">오늘 사이드프로젝트를 출시했습니다. 3개월이 걸렸지만 뿌듯하네요.</div>
+      </div>
+      <div class="fcard">
+        <div class="flabel" style="color:#ffd479">바이럴 훅</div>
+        <div class="ftext">3개월 전의 나: "금방 만들지 뭐" — 오늘의 나: 드디어 출시 👇</div>
+      </div>
+    </div>
+  </div>
+  <div class="foot">내 컴퓨터에 헬퍼를 설치하면 본인의 Claude / ChatGPT 구독이나 API 키로 제한 없이 쓸 수도 있어요 (오픈소스 · MIT).</div>
+</body>
+</html>
