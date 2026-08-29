@@ -18,7 +18,10 @@ const IMPLS = {
   gemini: apiGemini,
 };
 
-function validateRequest({ text, presets, provider }) {
+/** 추가 요청 상한 — 서버(apis-py)의 MAX_NOTE_LENGTH 와 같은 값으로 유지할 것. */
+const MAX_NOTE_LENGTH = 500;
+
+function validateRequest({ text, presets, provider, note }) {
   if (typeof text !== 'string' || !text.trim()) {
     throw errors.badRequest('text는 비어 있지 않은 문자열이어야 합니다.');
   }
@@ -30,6 +33,12 @@ function validateRequest({ text, presets, provider }) {
       throw errors.badRequest('각 preset에는 id와 instruction이 필요합니다.');
     }
   }
+  if (note !== undefined && note !== null) {
+    if (typeof note !== 'string') throw errors.badRequest('note는 문자열이어야 합니다.');
+    if (note.length > MAX_NOTE_LENGTH) {
+      throw errors.badRequest(`note는 ${MAX_NOTE_LENGTH}자 이하여야 합니다.`);
+    }
+  }
   if (!PROVIDERS[provider]) {
     throw errors.badRequest(`알 수 없는 provider: ${provider}`);
   }
@@ -37,7 +46,7 @@ function validateRequest({ text, presets, provider }) {
 
 /** POST /v1/rewrite 본체 — provider 선택 → 프롬프트 → 호출 → variants 검증. */
 export async function rewrite(config, body, signal) {
-  const { text, presets, provider, context } = body;
+  const { text, presets, provider, context, note } = body;
   validateRequest(body);
 
   const def = PROVIDERS[provider];
@@ -50,7 +59,7 @@ export async function rewrite(config, body, signal) {
   }
 
   const system = buildSystemPrompt();
-  const user = buildUserPrompt({ text, presets, context });
+  const user = buildUserPrompt({ text, presets, context, note });
 
   const started = Date.now();
   const payload = await IMPLS[provider].rewrite({

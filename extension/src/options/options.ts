@@ -4,6 +4,7 @@ import { FALLBACK_PROVIDERS } from '../shared/providers.js';
 import { CLOUD_GOOGLE_CLIENT_ID, CLOUD_PLANS, withCloud } from '../shared/cloud.js';
 import { errorMessage } from '../shared/errors.js';
 import { sendBg } from '../shared/rpc.js';
+import { clearHistory, loadHistory, MAX_ENTRIES } from '../shared/history.js';
 import type { CloudGoogleAuth, CloudQuota, ProviderInfo } from '../shared/messages.js';
 
 // 헬퍼 설치 안내 명령 — 기본은 npm 전역 설치 한 줄(npx 캐시 경로는 launchd 등록에 부적합).
@@ -616,6 +617,21 @@ async function init(): Promise<void> {
       toast();
     });
   }
+
+  // 최근 기록 — 사용자가 쓴 초안이 담기므로 개수 표시와 전체 삭제를 항상 제공한다.
+  const historyCount = $('#historyCount');
+  const clearBtn = $('#clearHistory') as HTMLButtonElement;
+  const syncHistory = async () => {
+    const count = (await loadHistory()).length;
+    historyCount.textContent = count ? `${count}개 저장됨 (최대 ${MAX_ENTRIES}개)` : '아직 기록이 없습니다';
+    clearBtn.disabled = count === 0;
+  };
+  clearBtn.onclick = async () => {
+    await clearHistory();
+    await syncHistory();
+    toast();
+  };
+  void syncHistory();
 
   $('#addCustomPreset').onclick = async () => {
     const current = await loadState();

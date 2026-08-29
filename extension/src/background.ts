@@ -234,7 +234,12 @@ async function handle(msg: BgRequest): Promise<BgResponse> {
               method: 'POST',
               signal: controller.signal,
               timeoutMs: 60_000, // 서버 저지연 모델 — 헬퍼 CLI보다 훨씬 짧은 상한
-              body: { text: msg.text, presets: msg.presets, context: msg.context },
+              body: {
+                text: msg.text,
+                presets: msg.presets,
+                context: msg.context,
+                note: msg.note,
+              },
             })
           : await helperFetch('/v1/rewrite', {
               method: 'POST',
@@ -246,6 +251,7 @@ async function handle(msg: BgRequest): Promise<BgResponse> {
                 provider: settings.provider,
                 model: settings.modelByProvider[settings.provider] || undefined,
                 context: msg.context,
+                note: msg.note,
               },
             });
         if (!result.ok) return result;

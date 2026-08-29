@@ -12,6 +12,8 @@ export type BgRequest =
       text: string;
       presets: Preset[];
       context: RewriteContext;
+      /** 이번 요청에만 적용할 추가 지시(선택) — 프리셋과 달리 저장되지 않는 1회성 요청. */
+      note?: string;
     }
   | { type: 'cancel'; requestId: string }
   | { type: 'helper-health' }

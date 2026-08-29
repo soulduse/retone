@@ -8,6 +8,7 @@ import type { BgResponse, CloudQuota, ErrorCode, ProviderInfo, Variant } from '.
 import type { SiteAdapter } from './sites/types.js';
 import { insertText, copyText } from './insert.js';
 import { showToast } from './toast.js';
+import { addHistory, loadHistory, removeHistory, relativeTime, type HistoryEntry } from '../shared/history.js';
 
 const send = (msg: Parameters<typeof sendBg>[0]) => sendBg(msg, 240_000); // rewrite는 오래 걸릴 수 있음
 
@@ -35,6 +36,10 @@ export class RetonePanel {
   private requestId: string | null = null;
   private elapsedTimer: number | undefined;
   private insertMode: 'insert' | 'copy' = 'insert';
+  /** 이번 요청에만 적용할 추가 요청 — 전송 후에도 값은 남겨 연속 시도를 편하게 한다. */
+  private note = '';
+  /** 히스토리에서 "이 초안으로" 재사용할 때, 작성창 대신 쓸 원문. */
+  private draftOverride: string | null = null;
   private providers: ProviderInfo[] = withCloud(FALLBACK_PROVIDERS);
   private provider = '';
   private modelByProvider: Record<string, string> = {};
@@ -89,6 +94,10 @@ export class RetonePanel {
     );
     if (this.selected.size === 0 && this.presets.length > 0) this.selected.add(this.presets[0].id);
 
+    // 패널 인스턴스는 페이지의 모든 작성창이 공유한다(content/index.ts) — 다른 작성창으로
+    // 옮겨갔을 때 이전 초안/추가 요청이 따라붙지 않도록 열 때마다 비운다.
+    this.draftOverride = null;
+    this.note = '';
     this.provider = state.settings.provider;
     this.modelByProvider = { ...state.settings.modelByProvider };
     if (providersCache) this.providers = providersCache;
@@ -165,6 +174,14 @@ export class RetonePanel {
     }
     this.body.appendChild(chips);
 
+    // 추가 요청(선택) — 프리셋으로 다 담기지 않는 1회성 주문을 받는다.
+    // 저장하지 않는 값이라 접힌 상태가 기본이고, 입력이 있으면 펼친 채로 그린다.
+    this.body.appendChild(this.buildNoteField());
+
+    if (this.draftOverride !== null) {
+      this.body.appendChild(this.buildReusedDraftChip());
+    }
+
     const run = document.createElement('button');
     run.className = 'rt-primary';
     run.textContent = '다듬기';
@@ -177,7 +194,69 @@ export class RetonePanel {
       this.run(chosen);
     };
     this.body.appendChild(run);
+
+    const historyBtn = document.createElement('button');
+    historyBtn.className = 'rt-link-btn';
+    historyBtn.textContent = '최근 기록';
+    historyBtn.onclick = () => void this.renderHistory();
+    this.body.appendChild(historyBtn);
+
     this.position();
+  }
+
+  /** 추가 요청 입력 — 값이 있으면 펼친 상태로 복원된다. */
+  private buildNoteField(): HTMLElement {
+    const wrap = document.createElement('div');
+    wrap.className = 'rt-note';
+
+    const toggle = document.createElement('button');
+    toggle.className = 'rt-note-toggle';
+    const input = document.createElement('textarea');
+    input.className = 'rt-note-input';
+    input.rows = 2;
+    input.placeholder = '예: 존댓말로, 이모지 빼고, 마지막에 질문 한 줄';
+    input.maxLength = 500;
+    input.value = this.note;
+    // 값 보존은 입력 즉시 — 렌더가 다시 일어나도 타이핑이 날아가지 않는다
+    input.oninput = () => {
+      this.note = input.value;
+    };
+
+    const sync = (open: boolean) => {
+      input.style.display = open ? '' : 'none';
+      toggle.textContent = open
+        ? '− 추가 요청 (선택)'
+        : this.note.trim()
+          ? `+ 추가 요청: ${this.note.trim().slice(0, 24)}${this.note.trim().length > 24 ? '…' : ''}`
+          : '+ 추가 요청 (선택)';
+      this.position();
+    };
+    toggle.onclick = () => {
+      const open = input.style.display === 'none';
+      sync(open);
+      if (open) input.focus();
+    };
+    sync(this.note.trim().length > 0);
+
+    wrap.append(toggle, input);
+    return wrap;
+  }
+
+  /** 히스토리에서 초안을 가져왔을 때 무엇을 다듬는지 알려주는 표시줄. */
+  private buildReusedDraftChip(): HTMLElement {
+    const row = document.createElement('div');
+    row.className = 'rt-reused';
+    const label = document.createElement('span');
+    const draft = this.draftOverride ?? '';
+    label.textContent = `기록의 초안 사용 중: ${draft.slice(0, 40)}${draft.length > 40 ? '…' : ''}`;
+    const clear = document.createElement('button');
+    clear.textContent = '작성창 글로';
+    clear.onclick = () => {
+      this.draftOverride = null;
+      this.renderIdle();
+    };
+    row.append(label, clear);
+    return row;
   }
 
   /** provider/모델 인라인 셀렉터 — 설정 페이지와 storage로 동기화된다. */
@@ -283,6 +362,104 @@ export class RetonePanel {
     this.position();
   }
 
+  /** 최근 기록 목록 — 저장된 결과를 바로 재사용하거나, 그 초안으로 다시 다듬는다. */
+  private async renderHistory(): Promise<void> {
+    const entries = await loadHistory();
+    if (!this.isOpen()) return;
+    this.body.textContent = '';
+
+    const head = document.createElement('div');
+    head.className = 'rt-history-head';
+    const title = document.createElement('span');
+    title.textContent = `최근 기록 ${entries.length ? `(${entries.length})` : ''}`;
+    const back = document.createElement('button');
+    back.className = 'rt-link-btn';
+    back.textContent = '← 돌아가기';
+    back.onclick = () => this.renderIdle();
+    head.append(title, back);
+    this.body.appendChild(head);
+
+    if (entries.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'rt-empty';
+      empty.textContent = '아직 기록이 없어요. 한 번 다듬으면 여기에 쌓입니다.';
+      this.body.appendChild(empty);
+      this.position();
+      return;
+    }
+
+    for (const entry of entries) {
+      this.body.appendChild(this.buildHistoryItem(entry));
+    }
+    this.position();
+  }
+
+  private buildHistoryItem(entry: HistoryEntry): HTMLElement {
+    const item = document.createElement('div');
+    item.className = 'rt-hist';
+
+    const head = document.createElement('div');
+    head.className = 'rt-hist-head';
+    const when = document.createElement('span');
+    when.className = 'rt-hist-time';
+    when.textContent = relativeTime(entry.at);
+    const del = document.createElement('button');
+    del.className = 'rt-hist-del';
+    del.textContent = '✕';
+    del.title = '이 기록 삭제';
+    del.onclick = async () => {
+      await removeHistory(entry.id);
+      void this.renderHistory();
+    };
+    head.append(when, del);
+    item.appendChild(head);
+
+    const draft = document.createElement('div');
+    draft.className = 'rt-hist-draft';
+    draft.textContent = entry.draft;
+    item.appendChild(draft);
+
+    if (entry.note) {
+      const note = document.createElement('div');
+      note.className = 'rt-hist-note';
+      note.textContent = `추가 요청: ${entry.note}`;
+      item.appendChild(note);
+    }
+
+    // 결과는 접어 둔다 — 항목마다 카드 3장을 펼치면 한 건이 패널을 다 먹어
+    // 목록을 훑을 수가 없다(최대 30건). 필요할 때만 연다.
+    const results = document.createElement('div');
+    results.className = 'rt-hist-results';
+    results.style.display = 'none';
+    // ⚠️ 재생성(↻)은 그때의 작성창이 아직 있다는 보장이 없어 히스토리에선 뺀다.
+    for (const variant of entry.variants) {
+      results.appendChild(this.buildCard(variant, { presetNames: entry.presetNames, regen: false }));
+    }
+
+    const toggle = document.createElement('button');
+    toggle.className = 'rt-hist-toggle';
+    const syncToggle = (open: boolean) => {
+      results.style.display = open ? '' : 'none';
+      const n = entry.variants.length;
+      toggle.textContent = open ? '결과 접기' : `결과 ${n}개 보기`;
+      this.position();
+    };
+    toggle.onclick = () => syncToggle(results.style.display === 'none');
+    syncToggle(false);
+    item.append(toggle, results);
+
+    const reuse = document.createElement('button');
+    reuse.className = 'rt-link-btn';
+    reuse.textContent = '이 초안으로 다시 다듬기';
+    reuse.onclick = () => {
+      this.draftOverride = entry.draft;
+      if (entry.note) this.note = entry.note;
+      this.renderIdle();
+    };
+    item.appendChild(reuse);
+    return item;
+  }
+
   private renderError(code: ErrorCode, detail?: string): void {
     this.body.textContent = '';
     const box = document.createElement('div');
@@ -359,7 +536,10 @@ export class RetonePanel {
     return line;
   }
 
-  private buildCard(variant: Variant): HTMLElement {
+  private buildCard(
+    variant: Variant,
+    opts: { presetNames?: Record<string, string>; regen?: boolean } = {},
+  ): HTMLElement {
     const preset = this.presets.find((p) => p.id === variant.presetId);
     const card = document.createElement('div');
     card.className = 'rt-card';
@@ -368,7 +548,7 @@ export class RetonePanel {
     head.className = 'rt-card-head';
     const badge = document.createElement('span');
     badge.className = 'rt-badge';
-    badge.textContent = preset?.name ?? variant.presetId;
+    badge.textContent = opts.presetNames?.[variant.presetId] ?? preset?.name ?? variant.presetId;
     head.appendChild(badge);
     card.appendChild(head);
 
@@ -409,6 +589,11 @@ export class RetonePanel {
     };
     actions.appendChild(copy);
 
+    if (opts.regen === false) {
+      card.appendChild(actions);
+      return card;
+    }
+
     const regen = document.createElement('button');
     regen.textContent = '↻';
     regen.title = '이 프리셋만 다시 생성';
@@ -435,9 +620,15 @@ export class RetonePanel {
 
   // ── 요청 처리 ──────────────────────────────────────────
 
+  /** 이번에 다듬을 원문 — 히스토리에서 가져온 초안이 있으면 그게 우선. */
+  private currentDraft(): string {
+    if (this.draftOverride !== null) return this.draftOverride.trim();
+    return this.composer ? this.adapter.getText(this.composer).trim() : '';
+  }
+
   private async request(presets: Preset[]): Promise<BgResponse> {
     if (!this.composer) return { ok: false, code: 'UNKNOWN' };
-    const text = this.adapter.getText(this.composer).trim();
+    const text = this.currentDraft();
     if (!text) {
       showToast('입력창에 먼저 글을 작성하세요');
       return { ok: false, code: 'BAD_REQUEST', detail: '빈 초안' };
@@ -450,6 +641,7 @@ export class RetonePanel {
         text,
         presets,
         context: { site: this.adapter.site, kind: this.adapter.kind(this.composer) },
+        note: this.note.trim() || undefined,
       });
     } finally {
       this.requestId = null;
@@ -459,7 +651,7 @@ export class RetonePanel {
   private async run(presets: Preset[]): Promise<void> {
     const composer = this.composer;
     if (!composer) return;
-    const draft = this.adapter.getText(composer).trim();
+    const draft = this.currentDraft();
     if (!draft) {
       showToast('입력창에 먼저 글을 작성하세요');
       return;
@@ -482,6 +674,17 @@ export class RetonePanel {
     this.variants = res.variants;
     this.quota = res.quota ?? null;
     this.renderResults();
+
+    // 기록은 성공했을 때만. 프리셋 이름은 사본으로 남긴다 — 나중에 프리셋을 지워도
+    // 옛 기록의 배지가 id 로 깨져 보이지 않도록.
+    void addHistory({
+      id: crypto.randomUUID(),
+      at: Date.now(),
+      draft,
+      note: this.note.trim() || undefined,
+      variants: res.variants,
+      presetNames: Object.fromEntries(presets.map((p) => [p.id, p.name])),
+    });
   }
 
   private cancel(): void {

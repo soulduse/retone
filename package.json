@@ -17,6 +17,6 @@
     "pack": "npm run build && node tools/pack-store.mjs",
     "dev": "npm run dev -w extension",
     "start": "npm start -w helper",
-    "test": "npm test -w helper"
+    "test": "npm test -w helper && npm run build && node --test extension/test/*.test.mjs"
   }
 }

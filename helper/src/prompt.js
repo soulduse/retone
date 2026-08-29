@@ -36,7 +36,7 @@ const SITE_HINTS = {
   threads: 'Threads의 글이다. 자연스럽고 대화적인 어조가 어울리는 플랫폼이다.',
 };
 
-export function buildUserPrompt({ text, presets, context }) {
+export function buildUserPrompt({ text, presets, context, note }) {
   const lines = [];
   const hint = SITE_HINTS[context?.site];
   if (hint) {
@@ -47,6 +47,10 @@ export function buildUserPrompt({ text, presets, context }) {
   presets.forEach((p, i) => {
     lines.push(`${i + 1}. id=${p.id} (${p.name}) 지시: ${p.instruction}`);
   });
+  // 추가 요청은 프리셋 뒤에 둔다 — 프리셋 지시와 충돌할 때 사용자의 즉석 요청이 이기도록.
+  if (note) {
+    lines.push('', '[추가 요청] 아래 요청을 모든 프리셋에 공통으로 반영하라.', note);
+  }
   lines.push('', '각 프리셋마다 variants 배열에 {presetId, text} 항목을 하나씩 생성하라.');
   return lines.join('\n');
 }

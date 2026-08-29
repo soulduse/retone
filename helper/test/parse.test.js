@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { extractJson, validateVariants } from '../src/util/json.js';
 
 test('extractJson: 그대로 파싱', () => {
@@ -59,4 +60,12 @@ test('claude envelope: structured_output 우선, 없으면 result 재파싱', ()
 
   const stringResult = { type: 'result', is_error: false, result: '{"variants":[{"presetId":"p","text":"t2"}]}' };
   assert.equal((stringResult.structured_output ?? extractJson(stringResult.result)).variants[0].text, 't2');
+});
+
+test('note 상한은 apis-py(MAX_NOTE_LENGTH=500)와 같은 값이어야 한다', async () => {
+  // 두 서버가 서로 다른 상한을 갖게 되면 한쪽에서만 통과하는 요청이 생긴다.
+  const src = await readFile(new URL('../src/rewrite.js', import.meta.url), 'utf8');
+  const m = src.match(/MAX_NOTE_LENGTH\s*=\s*(\d+)/);
+  assert.ok(m, 'MAX_NOTE_LENGTH 상수를 찾지 못했습니다');
+  assert.equal(Number(m[1]), 500);
 });

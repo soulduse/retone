@@ -39,3 +39,21 @@ test('스키마는 variants 배열을 요구한다', () => {
   const item = RETONE_SCHEMA.properties.variants.items;
   assert.deepEqual(item.required, ['presetId', 'text']);
 });
+
+test('추가 요청(note)은 프리셋 뒤에 붙는다', () => {
+  const user = buildUserPrompt({
+    text: '초안',
+    presets: PRESETS,
+    context: { site: 'x', kind: 'post' },
+    note: '존댓말로, 이모지 빼줘',
+  });
+  assert.match(user, /\[추가 요청\]/);
+  assert.match(user, /존댓말로, 이모지 빼줘/);
+  // 프리셋 지시와 충돌할 때 즉석 요청이 이기도록 뒤에 와야 한다
+  assert.ok(user.indexOf('[프리셋]') < user.indexOf('[추가 요청]'));
+});
+
+test('추가 요청이 없으면 섹션 자체가 없다', () => {
+  const user = buildUserPrompt({ text: '초안', presets: PRESETS, context: null });
+  assert.doesNotMatch(user, /\[추가 요청\]/);
+});

@@ -116,6 +116,76 @@ export const SHADOW_CSS = `
 .rt-card-actions button:hover { background: rgba(29,155,240,0.12); border-color: rgba(29,155,240,0.5); }
 .rt-card-actions button.busy { opacity: 0.5; pointer-events: none; }
 
+/* 추가 요청(선택) — 접힘이 기본. 색은 rgba/currentColor 로만 써서 라이트/다크 양쪽에 그대로 통한다. */
+.rt-note { margin-bottom: 10px; }
+.rt-note-toggle {
+  padding: 0; border: 0; background: none; color: inherit;
+  font-size: 11px; font-weight: 600; opacity: 0.65; cursor: pointer;
+  max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.rt-note-toggle:hover { opacity: 1; color: #1d9bf0; }
+.rt-note-input {
+  display: block; width: 100%; margin-top: 6px; padding: 7px 9px;
+  border-radius: 8px; border: 1px solid rgba(128,128,128,0.4);
+  background: rgba(128,128,128,0.08); color: inherit;
+  font-size: 12px; line-height: 1.45; resize: vertical; font-family: inherit;
+}
+.rt-note-input:focus { outline: none; border-color: rgba(29,155,240,0.7); }
+
+/* 히스토리 초안을 쓰는 중이라는 표시 — 작성창 글과 헷갈리지 않게 */
+.rt-reused {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  margin-bottom: 10px; padding: 6px 9px; border-radius: 8px;
+  background: rgba(29,155,240,0.1); border: 1px solid rgba(29,155,240,0.3);
+  font-size: 11px; line-height: 1.4;
+}
+.rt-reused span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rt-reused button {
+  flex: none; padding: 2px 8px; border-radius: 999px; cursor: pointer;
+  border: 1px solid rgba(128,128,128,0.4); background: transparent; color: inherit; font-size: 11px;
+}
+
+.rt-link-btn {
+  display: block; width: 100%; margin-top: 8px; padding: 6px 0;
+  border: 0; background: none; color: inherit;
+  font-size: 12px; font-weight: 600; opacity: 0.7; cursor: pointer; text-align: center;
+}
+.rt-link-btn:hover { opacity: 1; color: #1d9bf0; }
+
+.rt-history-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  margin-bottom: 10px; font-size: 12px; font-weight: 700;
+}
+.rt-history-head .rt-link-btn { display: inline; width: auto; margin: 0; padding: 0; font-size: 11px; }
+.rt-empty { padding: 18px 4px; text-align: center; font-size: 12px; opacity: 0.6; line-height: 1.5; }
+
+.rt-hist {
+  border: 1px solid rgba(128,128,128,0.28); border-radius: 10px;
+  padding: 10px 12px; margin-bottom: 10px;
+}
+.rt-hist-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.rt-hist-time { font-size: 11px; opacity: 0.6; }
+.rt-hist-del {
+  padding: 0 4px; border: 0; background: none; color: inherit;
+  font-size: 12px; opacity: 0.45; cursor: pointer;
+}
+.rt-hist-del:hover { opacity: 1; color: #f4212e; }
+/* 초안은 길 수 있어 3줄까지만 — 목록의 스캔 가능성을 지킨다 */
+.rt-hist-draft {
+  font-size: 12px; line-height: 1.45; opacity: 0.75; margin-bottom: 8px;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+  overflow: hidden; word-break: break-word;
+}
+.rt-hist-note { font-size: 11px; color: #1d9bf0; opacity: 0.9; margin-bottom: 8px; word-break: break-word; }
+.rt-hist-toggle {
+  padding: 0; border: 0; background: none; color: #1d9bf0;
+  font-size: 11px; font-weight: 600; cursor: pointer;
+}
+.rt-hist-toggle:hover { text-decoration: underline; }
+.rt-hist-results { margin-top: 8px; }
+.rt-hist .rt-card { margin-bottom: 6px; }
+.rt-hist .rt-link-btn { margin-top: 4px; font-size: 11px; }
+
 .rt-toast {
   position: fixed; z-index: 2147483647;
   bottom: 28px; left: 50%; transform: translateX(-50%);
