@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Retone",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "X·Threads 작성창 안에서 초안을 여러 톤으로 다듬어 드려요. 설치 없이 바로 쓰고, 초안은 저장하지 않습니다.",
   "minimum_chrome_version": "116",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtVSDcqM5YTmAqb6k/99IQZVr119Dg9yCJxX/mfd6MLTPSiQqTuElpVUovUZDrHUblVkLSJg6ZN3qIrrTrQort/rtUS2V5xFqUMoz4vGA75KBgDXcjK3BLv4MAlcKLt0Gg+3BD4pf8WzTmDl1KjutG9HyIKGFrGh/6WFSC0FnLDT2sB6Vj0+xNzFm8dBJiO0uFg/aaa4N8yjf3BenFsPL0kvuECJCEaq1mm0db8f/8uRX+W/sNiqD2osL+eTWhimzRlKsJZBt9tQJRbrjap2ZIrvAg8NawSk4QI1hjvhDOA6IFJJ/ZoC18pZyH/Sk5WDuYA+F6h+uMzxrQy7vwrWlhQIDAQAB",
