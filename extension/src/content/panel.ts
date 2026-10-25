@@ -118,10 +118,12 @@ export class RetonePanel {
     }
   }
 
-  /** 현재 provider의 유효 모델 — 저장값이 없으면 provider 기본값. */
+  /** 현재 provider의 유효 모델 — 저장값이 없거나 목록에서 빠진 옛 모델이면 provider 기본값. */
   private currentModel(): string {
     const def = this.providers.find((p) => p.id === this.provider);
-    return this.modelByProvider[this.provider] ?? def?.defaultModel ?? '';
+    const saved = this.modelByProvider[this.provider];
+    if (saved && def?.models.some((m) => m.id === saved)) return saved;
+    return def?.defaultModel ?? '';
   }
 
   private updateMeta(): void {

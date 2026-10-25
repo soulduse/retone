@@ -290,7 +290,9 @@ async function renderProviderSelects(): Promise<void> {
     opt.textContent = m.label ?? m.id;
     modelSel.appendChild(opt);
   }
-  modelSel.value = settings.modelByProvider[providerSel.value] || active?.defaultModel || '';
+  const saved = settings.modelByProvider[providerSel.value];
+  // 목록에서 빠진 옛 모델이 저장돼 있으면 기본 모델을 보여준다
+  modelSel.value = (saved && active?.models.some((m) => m.id === saved) ? saved : active?.defaultModel) || '';
   // 모델 개념이 없는 provider(Retone Cloud)는 모델 필드를 통째로 숨긴다
   $('#modelField').style.display = (active?.models.length ?? 0) === 0 ? 'none' : '';
 

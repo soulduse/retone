@@ -9,7 +9,8 @@ export async function rewrite({ apiKey, model, system, user, timeoutMs, signal }
     headers: { authorization: `Bearer ${apiKey}` },
     body: {
       model,
-      reasoning_effort: 'low',
+      // 톤 변환은 추론이 필요 없다 — none 이 low 보다 빠르고 품질 차이 없음(2026-10-25 실측)
+      reasoning_effort: 'none',
       messages: [
         { role: 'system', content: system },
         { role: 'user', content: user },

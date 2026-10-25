@@ -50,7 +50,8 @@ export async function rewrite(config, body, signal) {
   validateRequest(body);
 
   const def = PROVIDERS[provider];
-  const model = body.model || def.defaultModel;
+  // 목록에서 빠진 옛 모델(예: 확장에 저장된 gpt-5.4-mini)은 기본 모델로 대체한다.
+  const model = def.models.some((m) => m.id === body.model) ? body.model : def.defaultModel;
 
   let apiKey;
   if (def.kind === 'api') {

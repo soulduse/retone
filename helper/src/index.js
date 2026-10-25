@@ -135,6 +135,9 @@ switch (command) {
   </array>
   <key>RunAtLoad</key><true/>
   <key>KeepAlive</key><true/>
+  <!-- 미지정이면 launchd 가 CPU·I/O 를 스로틀한다 — 사용자가 입력창에서 기다리는 요청이라
+       Interactive 필수(codex-cli 1회 13~20s → 4s, 2026-10-25 실측) -->
+  <key>ProcessType</key><string>Interactive</string>
   <key>StandardOutPath</key><string>${logPath}</string>
   <key>StandardErrorPath</key><string>${logPath}</string>
 </dict>
