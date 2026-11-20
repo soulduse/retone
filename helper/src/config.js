@@ -11,7 +11,7 @@ const DEFAULTS = {
   port: 7386,
   timeoutMs: 90_000,
   token: '',
-  keys: {}, // { anthropic, openai, gemini } — 값이 있으면 해당 API provider 사용 가능
+  keys: {}, // { anthropic, openai, gemini, xai } — 값이 있으면 해당 API provider 사용 가능
 };
 
 export function loadConfig() {

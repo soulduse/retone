@@ -1,9 +1,11 @@
 import * as claudeCli from './providers/claude-cli.js';
 import * as codexCli from './providers/codex-cli.js';
 import * as antigravityCli from './providers/antigravity-cli.js';
+import * as grokCli from './providers/grok-cli.js';
 import * as apiAnthropic from './providers/api-anthropic.js';
 import * as apiOpenai from './providers/api-openai.js';
 import * as apiGemini from './providers/api-gemini.js';
+import * as apiXai from './providers/api-xai.js';
 import { PROVIDERS } from './providers/models.js';
 import { buildSystemPrompt, buildUserPrompt } from './prompt.js';
 import { validateVariants } from './util/json.js';
@@ -13,9 +15,11 @@ const IMPLS = {
   'claude-cli': claudeCli,
   'codex-cli': codexCli,
   'antigravity-cli': antigravityCli,
+  'grok-cli': grokCli,
   anthropic: apiAnthropic,
   openai: apiOpenai,
   gemini: apiGemini,
+  xai: apiXai,
 };
 
 /** 추가 요청 상한 — 서버(apis-py)의 MAX_NOTE_LENGTH 와 같은 값으로 유지할 것. */
@@ -51,7 +55,8 @@ export async function rewrite(config, body, signal) {
 
   const def = PROVIDERS[provider];
   // 목록에서 빠진 옛 모델(예: 확장에 저장된 gpt-5.4-mini)은 기본 모델로 대체한다.
-  const model = def.models.some((m) => m.id === body.model) ? body.model : def.defaultModel;
+  const modelDef = def.models.find((m) => m.id === body.model) ?? def.models.find((m) => m.id === def.defaultModel);
+  const model = modelDef.id;
 
   let apiKey;
   if (def.kind === 'api') {
@@ -66,6 +71,7 @@ export async function rewrite(config, body, signal) {
   const payload = await IMPLS[provider].rewrite({
     apiKey,
     model,
+    reasoningEffort: modelDef.reasoningEffort,
     system,
     user,
     timeoutMs: config.timeoutMs,

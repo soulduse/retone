@@ -6,7 +6,7 @@ X（Twitter）/ Threads の下書きを、投稿ボックスの中でそのま�
 
 ![Retone demo](docs/assets/demo.png)
 
-**すでに契約しているサブスクリプションをそのまま活用。** Retone は公式の `claude` / `codex` / `agy`（Antigravity）CLI をヘッドレスなサブプロセスとしてラップするため、Claude Pro/Max、ChatGPT Plus/Pro、Google AI Pro/Ultra のサブスクリプションでリライトが行われます — OAuth トークンの抽出も、サードパーティのサーバーも一切ありません。自前の API キー（Anthropic / OpenAI / Gemini）にも対応しています。
+**すでに契約しているサブスクリプションをそのまま活用。** Retone は公式の `claude` / `codex` / `agy`（Antigravity）/ `grok`CLI をヘッドレスなサブプロセスとしてラップするため、Claude Pro/Max、ChatGPT Plus/Pro、Google AI Pro/Ultra、SuperGrok のサブスクリプションでリライトが行われます — OAuth トークンの抽出も、サードパーティのサーバーも一切ありません。自前の API キー（Anthropic / OpenAI / Gemini / xAI）にも対応しています。
 
 ```
 Chrome extension (content script on x.com / threads.com)
@@ -16,7 +16,8 @@ Local helper (zero-dependency Node ESM)
    ├─ claude-cli      : claude -p (Claude subscription)
    ├─ codex-cli       : codex exec (ChatGPT subscription)
    ├─ antigravity-cli : agy -p (Google AI Pro/Ultra subscription)
-   └─ anthropic / openai / gemini : your own API keys
+   ├─ grok-cli        : grok -p (SuperGrok subscription)
+   └─ anthropic / openai / gemini / xai : your own API keys
 ```
 
 ## インストール
@@ -49,7 +50,7 @@ Chrome → `chrome://extensions` → デベロッパーモードを有効化 →
 拡張機能のオプションページを開くと、**ヘルパーと自動的に接続・ペアリングされます**（トークンのコピーは不要、`POST /v1/pair`）。ヘルパーが起動していない場合は、手順が順を追って表示されます。
 
 1. 接続を確認する（右上のピルが緑色に変わります）
-2. プロバイダー / モデルを選択する（Claude CLI: Sonnet 5/Haiku 4.5/Opus 4.8、Codex: GPT-5.5、Antigravity: Gemini 3.5 Flash など）
+2. プロバイダー / モデルを選択する（Claude CLI: Sonnet 5.5/Haiku 5.5/Opus 5.5、Codex: GPT-6 Luna/GPT-6.2 Sol、Antigravity: Gemini 3.8 Flash/Gemini 4、Grok: Grok 4.7 など）
 3. （任意）API プロバイダーを使う場合は API キーを入力 — キーはヘルパーの設定ファイル（`~/.config/retone/config.json`、パーミッション 0600）にのみ保存され、ブラウザには一切保存されません
 
 自動ペアリングに失敗した場合は、`retone token` の出力を詳細設定に手動で貼り付けてください。
@@ -92,6 +93,7 @@ HTTP API リファレンス: [`docs/api.md`](docs/api.md)
 - X/Threads の DOM 変更によって直接挿入が動かなくなることがあります — その場合、Retone は自動的にクリップボードへのコピーにフォールバックします。サイトごとのセレクタは `extension/src/content/sites/` に分離されています。
 - CLI プロバイダー経由のリライトは通常 5〜15 秒かかり、同じマシンで他のセッション（Claude Code など）が動いているとさらに遅くなることがあります。速いレスポンスが必要な場合は API プロバイダー（Gemini Flash など）を選んでください。
 - **Google サブスクリプション（Antigravity）**: Gemini CLI の個人/AI Pro ティアは 2026 年 6 月に終了したため、Retone は代わりに Antigravity CLI（`agy`）を使用します。https://antigravity.google からインストールし、ターミナルで `~/.local/bin/agy` を一度実行して Google アカウントでサインインしてください。
+- **Grok サブスクリプション**: 公式 Grok CLI（`grok`、https://x.ai/build）をインストールし、`grok login` で grok.com アカウントに一度サインインしてください。Retone は `~/.grok/bin/grok` があればそれを、なければ PATH 上の `grok` を使用します。
 
 ## プライバシー
 

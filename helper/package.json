@@ -1,7 +1,7 @@
 {
   "name": "retone",
-  "version": "0.1.0",
-  "description": "Retone local helper — rewrite your X/Threads drafts with your own AI subscription (Claude/Codex/Antigravity CLI) or API keys. Zero-dependency companion server for the Retone Chrome extension.",
+  "version": "0.2.0",
+  "description": "Retone local helper — rewrite your X/Threads drafts with your own AI subscription (Claude/Codex/Antigravity/Grok CLI) or API keys. Zero-dependency companion server for the Retone Chrome extension.",
   "type": "module",
   "license": "MIT",
   "repository": {
@@ -18,6 +18,8 @@
     "threads",
     "claude",
     "codex",
+    "gemini",
+    "grok",
     "local-first"
   ],
   "engines": {

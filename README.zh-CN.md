@@ -6,7 +6,7 @@
 
 ![Retone demo](docs/assets/demo.png)
 
-**直接利用你已经付费的订阅。** Retone 将官方的 `claude` / `codex` / `agy`（Antigravity）CLI 作为无头子进程封装调用，因此改写工作由你的 Claude Pro/Max、ChatGPT Plus/Pro 或 Google AI Pro/Ultra 订阅完成 —— 不提取 OAuth 令牌，也没有任何第三方服务器。同时也支持自带 API 密钥（Anthropic / OpenAI / Gemini）。
+**直接利用你已经付费的订阅。** Retone 将官方的 `claude` / `codex` / `agy`（Antigravity）/ `grok`CLI 作为无头子进程封装调用，因此改写工作由你的 Claude Pro/Max、ChatGPT Plus/Pro、Google AI Pro/Ultra 或 SuperGrok 订阅完成 —— 不提取 OAuth 令牌，也没有任何第三方服务器。同时也支持自带 API 密钥（Anthropic / OpenAI / Gemini / xAI）。
 
 ```
 Chrome extension (content script on x.com / threads.com)
@@ -16,7 +16,8 @@ Local helper (zero-dependency Node ESM)
    ├─ claude-cli      : claude -p (Claude subscription)
    ├─ codex-cli       : codex exec (ChatGPT subscription)
    ├─ antigravity-cli : agy -p (Google AI Pro/Ultra subscription)
-   └─ anthropic / openai / gemini : your own API keys
+   ├─ grok-cli        : grok -p (SuperGrok subscription)
+   └─ anthropic / openai / gemini / xai : your own API keys
 ```
 
 ## 安装
@@ -49,7 +50,7 @@ npm run build        # produces extension/dist/
 打开扩展程序的选项页面 —— 它会**自动连接并与助手配对**（无需复制令牌；`POST /v1/pair`）。如果助手未在运行，页面会显示分步操作指引。
 
 1. 确认连接状态（右上角的状态标签变为绿色）
-2. 选择提供商 / 模型（Claude CLI：Sonnet 5/Haiku 4.5/Opus 4.8，Codex：GPT-5.5，Antigravity：Gemini 3.5 Flash，…）
+2. 选择提供商 / 模型（Claude CLI：Sonnet 5.5/Haiku 5.5/Opus 5.5，Codex：GPT-6 Luna/GPT-6.2 Sol，Antigravity：Gemini 3.8 Flash/Gemini 4，Grok：Grok 4.7，…）
 3. （可选）填入 API 密钥以使用 API 提供商 —— 密钥仅保存在助手的配置文件中（`~/.config/retone/config.json`，权限 0600），绝不会存储在浏览器里
 
 如果自动配对失败，请手动将 `retone token` 的输出粘贴到高级设置中。
@@ -92,6 +93,7 @@ HTTP API 参考文档：[`docs/api.md`](docs/api.md)
 - X/Threads 的 DOM 变更可能导致直接插入失效 —— 此时 Retone 会自动回退为复制到剪贴板。站点选择器均隔离存放在 `extension/src/content/sites/` 中。
 - 通过 CLI 提供商改写通常需要 5–15 秒，如果同一台机器上还有其他会话（例如 Claude Code）在运行，速度可能更慢。如需快速响应，请选择 API 提供商（例如 Gemini Flash）。
 - **Google 订阅（Antigravity）**：Gemini CLI 的个人/AI Pro 层级已于 2026 年 6 月停止服务，因此 Retone 改用 Antigravity CLI（`agy`）。请从 https://antigravity.google 安装，并在终端运行一次 `~/.local/bin/agy` 完成 Google 账号登录。
+- **Grok 订阅**：安装官方 Grok CLI（`grok`，见 https://x.ai/build），并运行一次 `grok login` 登录 grok.com 账号。Retone 优先使用 `~/.grok/bin/grok`，否则使用 PATH 中的 `grok`。
 
 ## 隐私
 

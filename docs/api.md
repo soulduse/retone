@@ -72,7 +72,7 @@ curl -X POST -H "x-retone-token: $TOKEN" -H "content-type: application/json" \
 
 ## GET /v1/config
 
-키 presence만 반환 (원문 절대 미반환): `{"port":7386,"timeoutMs":90000,"keys":{"anthropic":true,"openai":false,"gemini":false}}`
+키 presence만 반환 (원문 절대 미반환): `{"port":7386,"timeoutMs":90000,"keys":{"anthropic":true,"openai":false,"gemini":false,"xai":false}}`
 
 ## PUT /v1/config/keys
 
@@ -85,9 +85,11 @@ curl -X PUT -H "x-retone-token: $TOKEN" -H "content-type: application/json" \
 
 ## Provider 구현 노트
 
-- **claude-cli**: `claude -p "<user>" --model <m> --fallback-model claude-sonnet-5 --output-format json --json-schema '<inline schema>' --append-system-prompt "<sys>"`. env에서 `ANTHROPIC_API_KEY` 제거(구독 모드 유지), cwd=`~/.config/retone/work/`. `--bare`는 keychain 인증을 건너뛸 수 있어 미사용.
+- **claude-cli**: `claude -p "<user>" --model <m> --fallback-model claude-sonnet-5-5 --output-format json --json-schema '<inline schema>' --append-system-prompt "<sys>"`. env에서 `ANTHROPIC_API_KEY` 제거(구독 모드 유지), cwd=`~/.config/retone/work/`. `--bare`는 keychain 인증을 건너뛸 수 있어 미사용.
 - **codex-cli**: `codex exec - --skip-git-repo-check -s read-only --ephemeral -m <m> -c model_reasoning_effort="low" --output-schema <file> -o <outfile>`, 프롬프트는 stdin. env에서 `OPENAI_API_KEY` 제거.
-- **antigravity-cli**: `~/.local/bin/agy -p "<sys+user+schema>" --model <m> --print-timeout <s>s`. Google AI Pro/Ultra 구독(키링 인증, 최초 1회 `agy` 실행으로 로그인). JSON 강제 플래그가 없어 프롬프트로 지시 후 관대한 추출로 파싱. PATH의 `agy`는 IDE 런처와 충돌하므로 고정 경로만 사용. 잘못된 모델명은 에러 없이 기본 모델로 폴백됨.
+- **antigravity-cli**: `~/.local/bin/agy -p "<sys+user+schema>" --model <m> --print-timeout <s>s`. Google AI Pro/Ultra 구독(키링 인증, 최초 1회 `agy` 실행으로 로그인). JSON 강제 플래그가 없어 프롬프트로 지시 후 관대한 추출로 파싱. PATH의 `agy`는 IDE 런처와 충돌하므로 고정 경로만 사용. 모델은 `agy models` 첫 열 ID(예: `gemini-3.8-flash-low`)여야 하며, 옛 표시명("Gemini 3.5 Flash (Low)")은 거절된다(2026-11).
+- **grok-cli**: `grok -p "<user>" -m <m> --output-format json --json-schema '<inline schema>' --system-prompt-override "<sys>" --reasoning-effort low --disable-web-search --no-subagents --max-turns 1`. grok.com 로그인(`grok login`) 구독 사용, env에서 `XAI_API_KEY`·`GROK_API_KEY` 제거. 결과는 봉투의 `structuredOutput`(없으면 `text` 재파싱). 바이너리는 `~/.grok/bin/grok` 우선, 없으면 PATH.
 - **anthropic**: Messages API + structured outputs(`output_config.format.json_schema`)
-- **openai**: chat/completions + `response_format json_schema strict` + `reasoning_effort: low`
+- **openai**: chat/completions + `response_format json_schema strict` + `reasoning_effort` = 모델별 최저치(models.js `reasoningEffort` — Luna `none`, Sol `low`)
+- **xai**: `https://api.x.ai/v1/chat/completions` + `response_format json_schema strict` + `reasoning_effort` = 모델별(models.js, grok-4.x 는 추론을 끌 수 없어 `low`)
 - **gemini**: `generateContent` + `responseSchema`(additionalProperties 제거 변환)

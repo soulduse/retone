@@ -3,11 +3,12 @@ import fs from 'node:fs';
 import crypto from 'node:crypto';
 import { loadConfig, saveConfig, PID_PATH } from './config.js';
 import { detectProviders } from './providers/detect.js';
+import { API_KEY_NAMES } from './providers/models.js';
 import { rewrite } from './rewrite.js';
 import { RetoneError, errors } from './util/errors.js';
 import { log, logError } from './util/log.js';
 
-export const VERSION = '0.1.0';
+export const VERSION = '0.2.0';
 const BODY_LIMIT = 256 * 1024;
 const HOST_RE = /^(127\.0\.0\.1|localhost)(:\d+)?$/;
 
@@ -43,11 +44,7 @@ function sendJson(res, status, payload) {
 }
 
 function keyPresence(config) {
-  return {
-    anthropic: Boolean(config.keys?.anthropic),
-    openai: Boolean(config.keys?.openai),
-    gemini: Boolean(config.keys?.gemini),
-  };
+  return Object.fromEntries(API_KEY_NAMES.map((name) => [name, Boolean(config.keys?.[name])]));
 }
 
 async function handle(req, res, config) {
@@ -118,7 +115,7 @@ async function handle(req, res, config) {
 
   if (req.method === 'PUT' && pathname === '/v1/config/keys') {
     const body = await readBody(req);
-    for (const vendor of ['anthropic', 'openai', 'gemini']) {
+    for (const vendor of API_KEY_NAMES) {
       if (!(vendor in body)) continue;
       const value = body[vendor];
       if (typeof value !== 'string') throw errors.badRequest(`${vendor} 키는 문자열이어야 합니다.`);

@@ -11,11 +11,11 @@ export const FALLBACK_PROVIDERS: ProviderInfo[] = [
     kind: 'cli',
     available: true,
     models: [
-      { id: 'claude-sonnet-5', label: 'Sonnet 5' },
-      { id: 'claude-haiku-4-5', label: 'Haiku 4.5 (빠름)' },
-      { id: 'claude-opus-4-8', label: 'Opus 4.8' },
+      { id: 'claude-sonnet-5-5', label: 'Sonnet 5.5' },
+      { id: 'claude-haiku-5-5', label: 'Haiku 5.5 (빠름)' },
+      { id: 'claude-opus-5-5', label: 'Opus 5.5' },
     ],
-    defaultModel: 'claude-sonnet-5',
+    defaultModel: 'claude-sonnet-5-5',
   },
   {
     id: 'codex-cli',
@@ -24,9 +24,9 @@ export const FALLBACK_PROVIDERS: ProviderInfo[] = [
     available: true,
     models: [
       { id: 'gpt-6-luna', label: 'GPT-6 Luna (빠름)' },
-      { id: 'gpt-6-sol', label: 'GPT-6 Sol' },
-      { id: 'gpt-6.1-sol', label: 'GPT-6.1 Sol (최고 성능)' },
-      { id: 'gpt-5.6-luna', label: 'GPT-5.6 Luna' },
+      { id: 'gpt-6.2-sol', label: 'GPT-6.2 Sol' },
+      { id: 'gpt-6.2-astra', label: 'GPT-6.2 Astra (최고 성능)' },
+      { id: 'gpt-6.1-sol', label: 'GPT-6.1 Sol' },
     ],
     defaultModel: 'gpt-6-luna',
   },
@@ -36,11 +36,24 @@ export const FALLBACK_PROVIDERS: ProviderInfo[] = [
     kind: 'cli',
     available: true,
     models: [
-      { id: 'Gemini 3.5 Flash (Low)', label: 'Gemini 3.5 Flash (빠름)' },
-      { id: 'Gemini 3.5 Flash (High)', label: 'Gemini 3.5 Flash (추론 강화)' }, // 괄호=추론 강도, 별도 모델 아님
-      { id: 'Gemini 3.1 Pro (High)', label: 'Gemini 3.1 Pro' },
+      { id: 'gemini-3.8-flash-low', label: 'Gemini 3.8 Flash (빠름)' },
+      { id: 'gemini-3.8-flash-high', label: 'Gemini 3.8 Flash (추론 강화)' },
+      { id: 'gemini-4-neon-low', label: 'Gemini 4 Neon' },
+      { id: 'gemini-4-argon-medium', label: 'Gemini 4 Argon (최고 성능)' },
     ],
-    defaultModel: 'Gemini 3.5 Flash (Low)',
+    defaultModel: 'gemini-3.8-flash-low',
+  },
+  {
+    id: 'grok-cli',
+    label: 'Grok CLI (SuperGrok 구독)',
+    kind: 'cli',
+    available: true,
+    models: [
+      { id: 'grok-4.7', label: 'Grok 4.7' },
+      { id: 'grok-4.7-build-fast', label: 'Grok 4.7 Fast' },
+      { id: 'grok-4.6', label: 'Grok 4.6' },
+    ],
+    defaultModel: 'grok-4.7',
   },
   {
     id: 'anthropic',
@@ -48,11 +61,11 @@ export const FALLBACK_PROVIDERS: ProviderInfo[] = [
     kind: 'api',
     available: true,
     models: [
-      { id: 'claude-haiku-4-5', label: 'Haiku 4.5 (빠름)' },
-      { id: 'claude-sonnet-5', label: 'Sonnet 5' },
-      { id: 'claude-opus-4-8', label: 'Opus 4.8' },
+      { id: 'claude-haiku-5-5', label: 'Haiku 5.5 (빠름)' },
+      { id: 'claude-sonnet-5-5', label: 'Sonnet 5.5' },
+      { id: 'claude-opus-5-5', label: 'Opus 5.5' },
     ],
-    defaultModel: 'claude-haiku-4-5',
+    defaultModel: 'claude-haiku-5-5',
   },
   {
     id: 'openai',
@@ -61,8 +74,8 @@ export const FALLBACK_PROVIDERS: ProviderInfo[] = [
     available: true,
     models: [
       { id: 'gpt-6-luna', label: 'GPT-6 Luna (빠름·최저가)' },
-      { id: 'gpt-6-sol', label: 'GPT-6 Sol' },
-      { id: 'gpt-5.6-luna', label: 'GPT-5.6 Luna' },
+      { id: 'gpt-6.2-sol', label: 'GPT-6.2 Sol' },
+      { id: 'gpt-6.1-sol', label: 'GPT-6.1 Sol' },
     ],
     defaultModel: 'gpt-6-luna',
   },
@@ -73,9 +86,20 @@ export const FALLBACK_PROVIDERS: ProviderInfo[] = [
     available: true,
     models: [
       { id: 'gemini-3.5-flash-lite', label: 'Gemini 3.5 Flash-Lite (빠름)' },
-      { id: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
-      { id: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro' },
+      { id: 'gemini-3.8-flash', label: 'Gemini 3.8 Flash' },
+      { id: 'gemini-3.1-pro-preview', label: 'Gemini 3.1 Pro (미리보기)' },
     ],
     defaultModel: 'gemini-3.5-flash-lite',
+  },
+  {
+    id: 'xai',
+    label: 'Grok API (xAI 키)',
+    kind: 'api',
+    available: true,
+    models: [
+      { id: 'grok-4.7', label: 'Grok 4.7' },
+      { id: 'grok-4.6', label: 'Grok 4.6' },
+    ],
+    defaultModel: 'grok-4.7',
   },
 ];

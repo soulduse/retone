@@ -1,5 +1,9 @@
 import type { Preset } from './presets.js';
 
+/** 헬퍼에 저장하는 API 키 이름 — helper/src/providers/models.js 의 API_KEY_NAMES 와 같게 유지. */
+export const API_KEY_VENDORS = ['anthropic', 'openai', 'gemini', 'xai'] as const;
+export type ApiKeyVendor = (typeof API_KEY_VENDORS)[number];
+
 export interface RewriteContext {
   site: 'x' | 'threads';
   kind: 'post' | 'reply';
@@ -19,7 +23,7 @@ export type BgRequest =
   | { type: 'helper-health' }
   | { type: 'helper-models'; fresh?: boolean }
   | { type: 'helper-restart' }
-  | { type: 'helper-save-keys'; keys: Partial<Record<'anthropic' | 'openai' | 'gemini', string>> }
+  | { type: 'helper-save-keys'; keys: Partial<Record<ApiKeyVendor, string>> }
   | { type: 'helper-pair' }
   | { type: 'cloud-quota' }
   | { type: 'cloud-google-signin' }

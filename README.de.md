@@ -6,7 +6,7 @@ Schreiben Sie Ihre X (Twitter)- / Threads-Entwürfe in mehreren Tonlagen um — 
 
 ![Retone demo](docs/assets/demo.png)
 
-**Nutzen Sie das Abo, das Sie bereits bezahlen.** Retone kapselt die offiziellen `claude`- / `codex`- / `agy`-CLIs (Antigravity) als Headless-Subprozesse, sodass Ihr Claude-Pro/Max-, ChatGPT-Plus/Pro- oder Google-AI-Pro/Ultra-Abo das Umschreiben übernimmt — keine OAuth-Token-Extraktion, keine Drittanbieter-Server. Eigene API-Schlüssel (Anthropic / OpenAI / Gemini) werden ebenfalls unterstützt.
+**Nutzen Sie das Abo, das Sie bereits bezahlen.** Retone kapselt die offiziellen `claude`- / `codex`- / `agy`- (Antigravity) / `grok`-CLIs als Headless-Subprozesse, sodass Ihr Claude-Pro/Max-, ChatGPT-Plus/Pro-, Google-AI-Pro/Ultra- oder SuperGrok-Abo das Umschreiben übernimmt — keine OAuth-Token-Extraktion, keine Drittanbieter-Server. Eigene API-Schlüssel (Anthropic / OpenAI / Gemini / xAI) werden ebenfalls unterstützt.
 
 ```
 Chrome extension (content script on x.com / threads.com)
@@ -16,7 +16,8 @@ Local helper (zero-dependency Node ESM)
    ├─ claude-cli      : claude -p (Claude subscription)
    ├─ codex-cli       : codex exec (ChatGPT subscription)
    ├─ antigravity-cli : agy -p (Google AI Pro/Ultra subscription)
-   └─ anthropic / openai / gemini : your own API keys
+   ├─ grok-cli        : grok -p (SuperGrok subscription)
+   └─ anthropic / openai / gemini / xai : your own API keys
 ```
 
 ## Installation
@@ -49,7 +50,7 @@ Chrome → `chrome://extensions` → Entwicklermodus aktivieren → **Entpackte 
 Öffnen Sie die Optionsseite der Erweiterung — sie **verbindet und koppelt sich automatisch mit dem Helper** (kein Token-Kopieren; `POST /v1/pair`). Läuft der Helper nicht, wird eine Schritt-für-Schritt-Anleitung angezeigt.
 
 1. Verbindung prüfen (die Statusanzeige oben rechts wird grün)
-2. Anbieter / Modell wählen (Claude CLI: Sonnet 5/Haiku 4.5/Opus 4.8, Codex: GPT-5.5, Antigravity: Gemini 3.5 Flash, …)
+2. Anbieter / Modell wählen (Claude CLI: Sonnet 5.5/Haiku 5.5/Opus 5.5, Codex: GPT-6 Luna/GPT-6.2 Sol, Antigravity: Gemini 3.8 Flash/Gemini 4, Grok: Grok 4.7, …)
 3. (Optional) API-Schlüssel eingeben, um API-Anbieter zu nutzen — die Schlüssel werden ausschließlich in der Helper-Konfiguration gespeichert (`~/.config/retone/config.json`, Modus 0600), niemals im Browser
 
 Sollte die automatische Kopplung einmal fehlschlagen, fügen Sie die Ausgabe von `retone token` manuell in den erweiterten Einstellungen ein.
@@ -92,6 +93,7 @@ HTTP-API-Referenz: [`docs/api.md`](docs/api.md)
 - DOM-Änderungen bei X/Threads können das direkte Einfügen brechen — in diesem Fall greift Retone automatisch auf das Kopieren in die Zwischenablage zurück. Die Site-Selektoren sind in `extension/src/content/sites/` isoliert.
 - Umschreibungen über CLI-Anbieter dauern typischerweise 5–15 Sekunden und können langsamer sein, wenn andere Sitzungen (z. B. Claude Code) auf derselben Maschine laufen. Wählen Sie einen API-Anbieter (z. B. Gemini Flash), wenn Sie schnelle Antworten benötigen.
 - **Google-Abo (Antigravity)**: Die Einzel-/AI-Pro-Stufen der Gemini CLI wurden im Juni 2026 eingestellt; Retone nutzt daher die Antigravity CLI (`agy`). Installieren Sie sie von https://antigravity.google und melden Sie sich einmalig an, indem Sie `~/.local/bin/agy` im Terminal ausführen.
+- **Grok-Abo**: Installieren Sie die offizielle Grok CLI (`grok`, von https://x.ai/build) und melden Sie sich einmalig mit `grok login` (grok.com-Konto) an. Retone nutzt `~/.grok/bin/grok`, falls vorhanden, sonst `grok` aus Ihrem PATH.
 
 ## Datenschutz
 

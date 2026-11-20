@@ -4,13 +4,13 @@ import { errors } from '../util/errors.js';
 import { RETONE_SCHEMA } from '../prompt.js';
 
 /** OpenAI Chat Completions + response_format json_schema (strict). */
-export async function rewrite({ apiKey, model, system, user, timeoutMs, signal }) {
+export async function rewrite({ apiKey, model, reasoningEffort = 'low', system, user, timeoutMs, signal }) {
   const data = await fetchJson('https://api.openai.com/v1/chat/completions', {
     headers: { authorization: `Bearer ${apiKey}` },
     body: {
       model,
-      // 톤 변환은 추론이 필요 없다 — none 이 low 보다 빠르고 품질 차이 없음(2026-10-25 실측)
-      reasoning_effort: 'none',
+      // 모델별 최저 추론 강도(models.js) — Luna 는 none 이 low 보다 빠르고 품질 차이 없음(2026-10-25 실측)
+      reasoning_effort: reasoningEffort,
       messages: [
         { role: 'system', content: system },
         { role: 'user', content: user },

@@ -5,7 +5,7 @@ import { CLOUD_GOOGLE_CLIENT_ID, CLOUD_PLANS, withCloud } from '../shared/cloud.
 import { errorMessage } from '../shared/errors.js';
 import { sendBg } from '../shared/rpc.js';
 import { clearHistory, loadHistory, MAX_ENTRIES } from '../shared/history.js';
-import type { CloudGoogleAuth, CloudQuota, ProviderInfo } from '../shared/messages.js';
+import { API_KEY_VENDORS, type CloudGoogleAuth, type CloudQuota, type ProviderInfo } from '../shared/messages.js';
 
 // 헬퍼 설치 안내 명령 — 기본은 npm 전역 설치 한 줄(npx 캐시 경로는 launchd 등록에 부적합).
 // 소스에서 직접 실행하는 개발자용 명령은 고급 설정의 경로 값으로 조립한다.
@@ -437,7 +437,7 @@ async function init(): Promise<void> {
 
   $('#saveKeys').onclick = async () => {
     const keys: Record<string, string> = {};
-    for (const vendor of ['anthropic', 'openai', 'gemini'] as const) {
+    for (const vendor of API_KEY_VENDORS) {
       keys[vendor] = input(`#key-${vendor}`).value.trim();
     }
     const status = $('#keysStatus');
@@ -445,7 +445,7 @@ async function init(): Promise<void> {
     status.className = `inline-status ${res.ok ? 'ok' : 'err'}`;
     status.textContent = res.ok ? '저장됨 (빈 칸은 삭제 처리)' : errorMessage(res.code, res.detail);
     if (res.ok) {
-      for (const vendor of ['anthropic', 'openai', 'gemini'] as const) input(`#key-${vendor}`).value = '';
+      for (const vendor of API_KEY_VENDORS) input(`#key-${vendor}`).value = '';
       await connect();
     }
   };
