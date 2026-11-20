@@ -19,7 +19,7 @@ export function grokCommand() {
  * 공식 Grok CLI(Grok Build) headless(-p) 경유 — grok.com 로그인(SuperGrok 등 구독) 사용.
  * env에서 XAI_API_KEY를 제거한다: 키가 있으면 구독 대신 API 과금으로 갈 수 있다.
  * 결과는 --json-schema 사용 시 봉투의 structuredOutput, 없으면 text 문자열을 재파싱한다(2026-11-20 실측, grok 1.0.89).
- * 리라이팅엔 도구가 필요 없으므로 웹 검색·서브에이전트를 끄고 1턴으로 제한한다.
+ * 리라이팅엔 도구가 필요 없으므로 도구·웹 검색·서브에이전트를 전부 끄고 1턴으로 제한한다.
  */
 export async function rewrite({ model, system, user, timeoutMs, signal }) {
   const env = { ...process.env };
@@ -33,6 +33,10 @@ export async function rewrite({ model, system, user, timeoutMs, signal }) {
     '--json-schema', JSON.stringify(RETONE_SCHEMA),
     '--system-prompt-override', system,
     '--reasoning-effort', 'low',
+    // 도구 차단(심층 방어): 초안·답글 문맥에 섞인 프롬프트 주입이 로컬 파일/셸 도구로 이어지지 않게
+    // 허용 도구를 비우고(--tools=) 쓰기·실행 없는 plan 모드로 돌린다(codex 의 -s read-only 와 같은 역할).
+    '--tools=',
+    '--permission-mode', 'plan',
     '--disable-web-search',
     '--no-subagents',
     '--max-turns', '1',
